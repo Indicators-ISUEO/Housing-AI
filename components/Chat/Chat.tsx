@@ -23,13 +23,14 @@ export interface ChatGPInstance {
 }
 
 const postChatOrQuestion = async (chat: Chat, messages: any[], input: string) => {
-  var url = '/chat';
-  const proxy_url = window.location.href;
+  var url = 'service/chat';
+  const proxy_url = process.env.NEXT_PUBLIC_HOST;
   if (proxy_url) {
-    url = proxy_url.replace('3000', '5000');
+    url = proxy_url + url;
   }
 
   const data = {
+    id: chat.id,
     prompt: chat?.persona?.prompt,
     messages: [...messages!],
     input,

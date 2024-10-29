@@ -14,7 +14,7 @@ if(url){
 
 const nextConfig = {
   assetPrefix: hpc_node? '/rnode/'+hpc_node+'/proxy/3000': '',
-  output: 'standalone',
+  output: 'export',
   sassOptions: {
     // includePaths: [path.join(__dirname, 'styles')]
   },
