@@ -1,67 +1,88 @@
 import React from 'react';
-import { Flex, Heading, Text, Button } from '@radix-ui/themes';
-import { FaMapMarkedAlt } from 'react-icons/fa';
-import { BsHouseDoor, BsQuestionCircle, BsFileText } from 'react-icons/bs';
-import { MdAnalytics } from 'react-icons/md';
+import { Box, Button, Card, Flex, Text } from '@radix-ui/themes';
+import { ChatBubbleIcon, HomeIcon } from '@radix-ui/react-icons';
+import { FaBuilding, FaBolt } from 'react-icons/fa';
 
-const WelcomeScreen = ({ onSuggestionClick }) => {
+interface WelcomeScreenProps {
+  onSuggestionClick: (prompt: string) => void;
+}
+
+const WelcomeScreen = ({ onSuggestionClick }: WelcomeScreenProps) => {
   const suggestions = [
     {
-      icon: <FaMapMarkedAlt className="size-5" />,
-      text: "Generate a housing density map",
-      prompt: "Can you generate a map showing housing density in Iowa?"
+      icon: <HomeIcon className="size-5" />,
+      title: "Rural Housing Rehabilitation",
+      description: "Learn about housing programs and assistance",
+      prompt: "What resources does ISU Extension offer for rural housing rehabilitation?"
     },
     {
-      icon: <BsHouseDoor className="size-5" />,
-      text: "Learn about RHRA program",
-      prompt: "What is the Rural Housing Readiness Assessment (RHRA) program?"
+      icon: <FaBuilding className="size-5" />,
+      title: "Community Development",
+      description: "Explore community development initiatives",
+      prompt: "Can you explain ISU Extension's community development programs?"
     },
     {
-      icon: <MdAnalytics className="size-5" />,
-      text: "Housing market analysis",
-      prompt: "Can you analyze the current housing market trends in Iowa?"
+      icon: <ChatBubbleIcon className="size-5" />,
+      title: "Housing Needs Assessment",
+      description: "Get help with housing assessments",
+      prompt: "How can ISU Extension help with conducting a housing needs assessment?"
     },
     {
-      icon: <BsFileText className="size-5" />,
-      text: "Housing resources",
-      prompt: "What housing resources and programs are available through ISU Extension?"
+      icon: <FaBolt className="size-5" />,
+      title: "Rural Development",
+      description: "Discover rural development programs",
+      prompt: "What are ISU Extension's current rural development initiatives?"
     }
   ];
 
   return (
-    <Flex direction="column" align="center" justify="center" className="h-full text-center px-4">
-      <div className="max-w-2xl w-full">
-        <Heading size="6" mb="4">Welcome to ISU Extensions and Outreach - CED</Heading>
-        <Text as="p" size="3" color="gray" mb="8">
-          Ask me about housing programs, generate maps, or analyze housing data in Iowa
-        </Text>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {suggestions.map((suggestion, index) => (
-            <Button
-              key={index}
-              variant="soft"
-              className="flex items-center p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              onClick={() => onSuggestionClick(suggestion.prompt)}
-            >
-              <Flex align="center" gap="3">
-                <div className="text-violet-500">
-                  {suggestion.icon}
-                </div>
-                <Text>{suggestion.text}</Text>
-              </Flex>
-            </Button>
-          ))}
-        </div>
-
-        <Flex mt="8" gap="2" justify="center" align="center">
-          <BsQuestionCircle className="size-4" />
-          <Text size="2" color="gray">
-            Ask me anything about housing in Iowa
+    <Box className="p-8 max-w-4xl mx-auto">
+      <Card className="mb-8 p-6">
+        <Flex direction="column" gap="4">
+          <Text size="8" weight="bold" align="center">
+            Welcome to Iowa State University Extensions and Outreach
+          </Text>
+          <Text size="4" color="gray" align="center">
+            Community and Economic Development (CED)
+          </Text>
+          <Text align="center" className="max-w-2xl mx-auto">
+            Ask me about housing, community development, and rural initiatives in Iowa. 
+            I'm here to help you find information about ISU Extension's programs and services.
           </Text>
         </Flex>
-      </div>
-    </Flex>
+      </Card>
+      
+      <Text size="6" weight="medium" className="mb-4">
+        Suggested Topics
+      </Text>
+      
+      <Flex gap="4" wrap="wrap">
+        {suggestions.map((suggestion, index) => (
+          <Card
+            key={index}
+            className="flex-1 min-w-[250px] cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => onSuggestionClick(suggestion.prompt)}
+          >
+            <Flex direction="column" gap="3" className="p-4">
+              <Flex 
+                align="center" 
+                justify="center" 
+                className="w-10 h-10 rounded-full bg-red-100"
+              >
+                {suggestion.icon}
+              </Flex>
+              <Text weight="bold">{suggestion.title}</Text>
+              <Text size="2" color="gray">
+                {suggestion.description}
+              </Text>
+              <Button variant="soft" size="2">
+                Ask about this
+              </Button>
+            </Flex>
+          </Card>
+        ))}
+      </Flex>
+    </Box>
   );
 };
 

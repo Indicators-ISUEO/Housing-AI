@@ -1,44 +1,47 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useContext } from 'react'
 import { HamburgerMenuIcon } from '@radix-ui/react-icons'
-import { Avatar, Flex, Heading, IconButton, Select, Tooltip } from '@radix-ui/themes'
-import cs from 'classnames'
+import { Avatar, Flex, Heading, IconButton, Select } from '@radix-ui/themes'
 import NextLink from 'next/link'
 import Image from 'next/image'
 import { FaAdjust, FaGithub, FaMoon, FaRegSun } from 'react-icons/fa'
 import { Link } from '../Link'
 import { useTheme } from '../Themes'
+import { ChatContext } from '@/components'
 
 export const Header = () => {
   const { theme, setTheme } = useTheme()
-  const [, setShow] = useState(false)
-
-  const toggleNavBar = useCallback(() => {
-    setShow((state) => !state)
-  }, [])
+  const { onToggleSidebar } = useContext(ChatContext)
 
   return (
     <header
-      className={cs('block shadow-sm sticky top-0 dark:shadow-gray-500 py-4 px-6 z-20')}
-      style={{ 
-        backgroundColor: 'var(--color-background)',
-        minHeight: '80px',
-        display: 'flex',
-        alignItems: 'center'
-      }}
+      className="sticky top-0 z-30 flex items-center w-full h-[80px] px-4 border-b bg-background shadow-sm dark:shadow-gray-500"
     >
       <Flex align="center" gap="4" className="relative w-full">
+        {/* Menu Button */}
+        <IconButton
+          size="3"
+          variant="ghost"
+          onClick={() => {
+            console.log('Menu clicked');
+            onToggleSidebar?.();
+          }}
+          className="flex-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <HamburgerMenuIcon width="24" height="24" />
+        </IconButton>
+
         {/* Logo container */}
-        <div className="flex-none" style={{ width: '250px' }}>
+        <div className="flex-none w-[180px]">
           <NextLink href="/">
             <Image
               src="/ISUEO.jpg"
               alt="ISU Extension and Outreach"
-              width={200}
-              height={60}
+              width={180}
+              height={54}
               style={{
-                height: '60px',
+                height: '54px',
                 width: 'auto',
                 objectFit: 'contain',
                 background: theme === 'dark' ? 'white' : 'transparent',
@@ -96,18 +99,6 @@ export const Header = () => {
               </Select.Item>
             </Select.Content>
           </Select.Root>
-          
-          <Tooltip content="Navigation">
-            <IconButton
-              size="3"
-              variant="ghost"
-              color="gray"
-              className="md:hidden"
-              onClick={toggleNavBar}
-            >
-              <HamburgerMenuIcon width="16" height="16" />
-            </IconButton>
-          </Tooltip>
         </div>
       </Flex>
     </header>
