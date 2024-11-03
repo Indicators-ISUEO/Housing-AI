@@ -1,132 +1,179 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
-import { Card, IconButton, Button, Flex, Text, ScrollArea, Box, TextArea } from '@radix-ui/themes';
-import { ChatBubbleIcon, Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
+import React, { useState } from 'react';
+import { Card, Flex, Text, Button, Box } from '@radix-ui/themes';
+import { FaPaperPlane, FaComments } from 'react-icons/fa';
+import { Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 import type { ChatMessage } from './types';
 
 interface Props {
   onSendMessage: (message: string) => void;
   messages: ChatMessage[];
+  isLoading?: boolean;
 }
 
-const ChatWidget = ({ onSendMessage, messages }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputContent, setInputContent] = useState('');
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
+  const [isOpen, setIsOpen] = useState(true);
+  const [inputMessage, setInputMessage] = useState('');
+
+  const handleSend = () => {
+    if (inputMessage.trim() && !isLoading) {
+      onSendMessage(inputMessage);
+      setInputMessage('');
+    }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (inputContent.trim()) {
-        onSendMessage(inputContent);
-        setInputContent('');
-      }
+      handleSend();
     }
   };
 
-  const handleSend = () => {
-    if (inputContent.trim()) {
-      onSendMessage(inputContent);
-      setInputContent('');
-    }
-  };
-
-  return (
-    <>
-      {/* Widget Button */}
-      {!isOpen && (
-        <Button 
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
-          style={{ backgroundColor: '#500000' }}
-        >
-          <ChatBubbleIcon className="w-6 h-6 text-white" />
-        </Button>
-      )}
-
-      {/* Chat Window */}
-      {isOpen && (
-        <Card className="fixed bottom-4 right-4 w-96 h-[600px] shadow-xl flex flex-col rounded-lg overflow-hidden z-50">
-          {/* Header */}
-          <Flex 
-            justify="between" 
-            align="center" 
-            p="3" 
-            style={{ backgroundColor: '#500000' }}
-          >
-            <Text className="text-white" weight="bold">
-              ISU Extension Chat
-            </Text>
-            <Flex gap="2">
-              <IconButton 
-                variant="ghost" 
-                onClick={() => setIsOpen(false)}
-                className="text-white hover:bg-red-900"
-              >
-                <ChevronDownIcon />
-              </IconButton>
-              <IconButton 
-                variant="ghost" 
-                onClick={() => {
-                  setIsOpen(false);
-                }}
-                className="text-white hover:bg-red-900"
-              >
-                <Cross2Icon />
-              </IconButton>
-            </Flex>
-          </Flex>
-
-          {/* Chat Content */}
-          <ScrollArea className="flex-1 p-4">
-            <Flex direction="column" gap="3">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`max-w-[80%] ${
-                    msg.role === 'user' ? 'ml-auto' : 'mr-auto'
-                  }`}
-                >
-                  <div
-                    className={`p-3 rounded-lg ${
-                      msg.role === 'user'
-                        ? 'bg-red-900 text-white'
-                        : 'bg-gray-100 dark:bg-gray-800'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-            </Flex>
-          </ScrollArea>
-
-          {/* Input Area */}
-          <Flex p="3" gap="2" className="border-t dark:border-gray-800">
-            <textarea
-              ref={textAreaRef}
-              value={inputContent}
-              onChange={(e) => setInputContent(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="Type your message..."
-              className="flex-1 min-h-[40px] max-h-[120px] p-2 rounded-lg resize-none bg-gray-100 dark:bg-gray-800 dark:text-white border-none focus:outline-none focus:ring-1 focus:ring-red-900"
-              style={{
-                overflow: 'auto'
-              }}
+  const widget = (
+    <Card className="fixed bottom-[120px] right-4 w-80 shadow-xl rounded-lg overflow-hidden z-50">
+      {/* Header */}
+      <Flex 
+        justify="between" 
+        align="center" 
+        px="4" 
+        py="2"
+        style={{ backgroundColor: '#C8102E' }}
+      >
+        <Flex align="center" gap="2">
+          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2 border-white">
+            <Image 
+              src="/Cy.png" 
+              alt="Cy" 
+              width={32} 
+              height={32}
+              className="object-cover"
             />
-            <Button 
-              onClick={handleSend}
-              style={{ backgroundColor: '#500000' }}
-              className="shrink-0"
-            >
-              Send
-            </Button>
-          </Flex>
-        </Card>
-      )}
-    </>
-  );
-};
+          </div>
+          <Text className="text-white font-bold">ISU Extension Chat</Text>
+        </Flex>
+        <Flex gap="2">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsOpen(false)}
+            className="text-white hover:bg-[#A00C24]"
+          >
+            <ChevronDownIcon />
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsOpen(false)}
+            className="text-white hover:bg-[#A00C24]"
+          >
+            <Cross2Icon />
+          </Button>
+        </Flex>
+      </Flex>
 
+      {/* Chat Content */}
+      <Box 
+        className="h-[400px] overflow-y-auto p-4"
+        style={{ backgroundColor: '#f8f8f8' }}
+      >
+        {/* Welcome Message */}
+        <Flex gap="2" className="mb-4">
+          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+            <Image 
+              src="/Cy.png"
+              alt="Cy"
+              width={32}
+              height={32}
+              className="object-cover"
+            />
+          </div>
+          <Box className="bg-white p-3 rounded-lg shadow-sm flex-1">
+            <Text>Welcome to ISU Extension Chat! How can I help you today?</Text>
+          </Box>
+        </Flex>
+
+        {messages.map((msg, index) => (
+          <Box 
+            key={index}
+            className={`mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}
+          >
+            <Flex 
+              gap="2" 
+              className={msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}
+            >
+              {msg.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                  <Image 
+                    src="/Cy.png"
+                    alt="Cy"
+                    width={32}
+                    height={32}
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <Box
+                className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                  msg.role === 'user' 
+                    ? 'bg-[#C8102E] text-white' 
+                    : 'bg-white shadow-sm'
+                }`}
+              >
+                {msg.content}
+              </Box>
+            </Flex>
+          </Box>
+        ))}
+      </Box>
+
+      {/* Input Area */}
+      <Box className="p-4 border-t border-gray-200 bg-white">
+        <Flex gap="2">
+          <textarea
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Type your message..."
+            className="flex-1 p-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:border-[#C8102E]"
+            style={{ minHeight: '40px', maxHeight: '120px' }}
+            disabled={isLoading}
+          />
+          <Button 
+            onClick={handleSend}
+            style={{ backgroundColor: '#C8102E' }}
+            className="flex-shrink-0 hover:bg-[#A00C24]"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="animate-spin">↻</span>
+            ) : (
+              <FaPaperPlane />
+            )}
+          </Button>
+        </Flex>
+      </Box>
+    </Card>
+  );
+
+  const chatButton = (
+    <button
+      onClick={() => setIsOpen(true)}
+      className="fixed bottom-4 right-4 bg-[#C8102E] text-white shadow-lg hover:shadow-xl z-50 rounded-full flex items-center gap-2 px-4 py-2 transition-all duration-300 hover:bg-[#A00C24]"
+    >
+      <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+        <Image 
+          src="/Cy.png" 
+          alt="Chat with ISU Extension" 
+          width={32} 
+          height={32}
+          className="object-cover"
+        />
+      </div>
+      <span className="font-semibold whitespace-nowrap">Cyclone AI</span>
+      <FaComments className="text-xl ml-2" />
+    </button>
+  );
+
+  return isOpen ? widget : chatButton;
+};
 export default ChatWidget;

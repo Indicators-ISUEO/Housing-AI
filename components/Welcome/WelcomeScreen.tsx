@@ -159,7 +159,7 @@ const WelcomeScreen = ({ onSuggestionClick, isLoading }: WelcomeScreenProps) => 
         </Flex>
       </Box>
 
-      {/* Footer */}
+      {/* Footer
       <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <Flex direction="column" gap="2" className="max-w-5xl mx-auto text-center">
           <Text size="1" className="text-gray-600 dark:text-gray-400">
@@ -170,7 +170,7 @@ const WelcomeScreen = ({ onSuggestionClick, isLoading }: WelcomeScreenProps) => 
             © {new Date().getFullYear()} Iowa State University Extension and Outreach. All rights reserved.
           </Text>
         </Flex>
-      </Box>
+      </Box> */}
     </Box>
   );
 };

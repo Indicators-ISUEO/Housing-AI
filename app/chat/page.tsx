@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { Flex } from '@radix-ui/themes'
+import { Flex, Box, Text } from '@radix-ui/themes'
 import { Chat, ChatContext, ChatSideBar, useChatHook, ChatMessage, ChatRole } from '@/components'
 import { WelcomeScreen } from '@/components/Welcome'
 import PersonaModal from './PersonaModal'
@@ -38,7 +38,6 @@ const ChatProvider = () => {
       let url = '/chat'
       const proxy_url = window.location.href
       if (proxy_url) {
-        // url = proxy_url.replace("3000", "5000")
         url = proxy_url.replace("3000", "8080")
       }
 
@@ -73,7 +72,6 @@ const ChatProvider = () => {
 
       let assistantResponse = '';
 
-      // Add initial assistant message
       if (provider.chatRef?.current) {
         provider.chatRef.current.setConversation([
           userMessage,
@@ -117,28 +115,47 @@ const ChatProvider = () => {
   }
 
   return (
-    <ChatContext.Provider value={{
-      ...provider,
-      showWelcome,
-      setShowWelcome,
-      isLoading
-    }}>
-      <Flex style={{ height: 'calc(100% - 56px)' }} className="relative">
-        <ChatSideBar />
-        <div className="flex-1 relative">
-          {showWelcome ? (
-            <WelcomeScreen 
-              onSuggestionClick={handleSuggestionClick} 
-              isLoading={isLoading}
-            />
-          ) : (
-            <Chat ref={provider.chatRef} />
-          )}
-          <PersonaPanel />
-        </div>
-      </Flex>
-      <PersonaModal />
-    </ChatContext.Provider>
+    <Box style={{ height: 'calc(100vh - 56px)' }}>
+      <ChatContext.Provider value={{
+        ...provider,
+        showWelcome,
+        setShowWelcome,
+        isLoading
+      }}>
+        <Flex direction="column" style={{ height: '100%' }}>
+          {/* Main Content Area with fixed height */}
+          <Box style={{ height: 'calc(100% - 100px)' }} className="relative">
+            <Flex style={{ height: '100%' }}>
+              <ChatSideBar />
+              <div className="flex-1">
+                {showWelcome ? (
+                  <WelcomeScreen 
+                    onSuggestionClick={handleSuggestionClick} 
+                    isLoading={isLoading}
+                  />
+                ) : (
+                  <Chat ref={provider.chatRef} />
+                )}
+                <PersonaPanel />
+              </div>
+            </Flex>
+          </Box>
+
+          {/* Footer with fixed height */}
+          <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+            <Flex direction="column" gap="2" className="max-w-5xl mx-auto text-center">
+              <Text size="1" className="text-gray-600 dark:text-gray-400">
+                Disclaimer: This AI assistant can make mistakes. Please check for accuracy!
+              </Text>
+              <Text size="1" className="text-gray-500 dark:text-gray-500">
+                © {new Date().getFullYear()} Iowa State University Extension and Outreach. All rights reserved.
+              </Text>
+            </Flex>
+          </Box>
+        </Flex>
+        <PersonaModal />
+      </ChatContext.Provider>
+    </Box>
   )
 }
 

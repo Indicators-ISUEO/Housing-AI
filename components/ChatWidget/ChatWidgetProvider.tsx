@@ -3,15 +3,30 @@
 import React, { useState, useCallback } from 'react';
 import ChatWidget from './ChatWidget';
 import type { ChatMessage } from './types';
+import toast from 'react-hot-toast';
 
 const ChatWidgetProvider = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = useCallback(async (content: string) => {
-    setMessages(prev => [...prev, { role: 'user', content }]);
+    if (isLoading) return;
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/chat', {
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content
+      };
+      setMessages(prev => [...prev, userMessage]);
+
+      let url = '/chat';
+      const proxy_url = window.location.href;
+      if (proxy_url) {
+        url = proxy_url.replace("3000", "8080");
+      }
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,47 +38,49 @@ const ChatWidgetProvider = () => {
         })
       });
 
-      if (response.ok) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
 
-        if (reader) {
-          let assistantResponse = '';
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+      if (reader) {
+        let assistantResponse = '';
+        
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: ''
+        };
+        setMessages(prev => [...prev, assistantMessage]);
 
-            const chunk = decoder.decode(value);
-            assistantResponse += chunk;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-            setMessages(prev => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              
-              if (lastMessage?.role === 'assistant') {
-                lastMessage.content = assistantResponse;
-                return [...newMessages];
-              } else {
-                return [...newMessages, { role: 'assistant', content: assistantResponse }];
-              }
-            });
-          }
+          const chunk = decoder.decode(value);
+          assistantResponse += chunk;
+
+          setMessages(prev => [
+            ...prev.slice(0, -1),
+            { role: 'assistant', content: assistantResponse }
+          ]);
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, there was an error processing your message.'
-      }]);
+      toast.error('Failed to process your request. Please try again.');
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   return (
     <ChatWidget
       messages={messages}
       onSendMessage={handleSendMessage}
+      isLoading={isLoading}
     />
   );
 };
