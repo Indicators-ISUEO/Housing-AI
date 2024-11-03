@@ -6,67 +6,131 @@ import { Chat, ChatContext, ChatSideBar, useChatHook, ChatMessage, ChatRole } fr
 import { WelcomeScreen } from '@/components/Welcome'
 import PersonaModal from './PersonaModal'
 import PersonaPanel from './PersonaPanel'
+import toast from 'react-hot-toast'
 
 const ChatProvider = () => {
   const provider = useChatHook()
   const [showWelcome, setShowWelcome] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSuggestionClick = async (prompt: string) => {
-    const newChat = {
-      ...provider.DefaultPersonas[0],
-      name: `Chat - ${prompt.substring(0, 20)}...`
-    }
-    await provider.onCreateChat?.(newChat)
-    
-    setShowWelcome(false)
+    if (isLoading) return;
 
-    // Adding assistant message immediately to show loading state
-    if (provider.currentChatRef?.current) {
-      const initialMessage: ChatMessage = {
-        role: 'assistant' as ChatRole,
-        content: 'Let me help you with that...'
+    setIsLoading(true);
+    try {
+      const newChat = {
+        ...provider.DefaultPersonas[0],
+        name: `Chat - ${prompt.substring(0, 20)}...`
       }
-      
-      provider.currentChatRef.current.messages = [initialMessage]
-      provider.forceUpdate?.()
-    }
+      await provider.onCreateChat?.(newChat)
 
-    // Adding the user's prompt as a message
-    if (provider.chatRef?.current) {
       const userMessage: ChatMessage = {
         role: 'user' as ChatRole,
         content: prompt
       }
-      provider.chatRef.current.setConversation([userMessage])
 
-      setTimeout(() => {
-        const textArea = document.querySelector('.chat-textarea .rt-TextAreaInput') as HTMLElement
-        if (textArea) {
-          textArea.innerHTML = prompt
-          const enterEvent = new KeyboardEvent('keydown', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            which: 13,
-            bubbles: true,
-            cancelable: true
-          })
-          textArea.dispatchEvent(enterEvent)
+      if (provider.chatRef?.current) {
+        provider.chatRef.current.setConversation([userMessage])
+      }
+
+      setShowWelcome(false)
+
+      let url = '/chat'
+      const proxy_url = window.location.href
+      if (proxy_url) {
+        // url = proxy_url.replace("3000", "5000")
+        url = proxy_url.replace("3000", "8080")
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream'
+        },
+        body: JSON.stringify({
+          prompt: provider.DefaultPersonas[0].prompt,
+          messages: [userMessage],
+          input: prompt
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('Stream reader not available');
+      }
+
+      const assistantMessage: ChatMessage = {
+        role: 'assistant' as ChatRole,
+        content: ''
+      }
+
+      let assistantResponse = '';
+
+      // Add initial assistant message
+      if (provider.chatRef?.current) {
+        provider.chatRef.current.setConversation([
+          userMessage,
+          assistantMessage
+        ])
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        assistantResponse += chunk;
+
+        if (provider.chatRef?.current) {
+          provider.chatRef.current.setConversation([
+            userMessage,
+            { ...assistantMessage, content: assistantResponse }
+          ])
         }
-      }, 100)
+      }
+
+      const finalMessages: ChatMessage[] = [
+        userMessage,
+        { ...assistantMessage, content: assistantResponse }
+      ]
+      await provider.saveMessages?.(finalMessages)
+      provider.forceUpdate?.()
+
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('An error occurred. Please try again.')
+      setShowWelcome(true)
+      
+      if (provider.currentChatRef?.current) {
+        provider.currentChatRef.current = undefined
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <ChatContext.Provider value={provider}>
+    <ChatContext.Provider value={{
+      ...provider,
+      showWelcome,
+      setShowWelcome,
+      isLoading
+    }}>
       <Flex style={{ height: 'calc(100% - 56px)' }} className="relative">
-        {/* Chat Sidebar */}
         <ChatSideBar />
-        
-        {/* Main Content */}
         <div className="flex-1 relative">
           {showWelcome ? (
-            <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
+            <WelcomeScreen 
+              onSuggestionClick={handleSuggestionClick} 
+              isLoading={isLoading}
+            />
           ) : (
             <Chat ref={provider.chatRef} />
           )}
@@ -80,7 +144,11 @@ const ChatProvider = () => {
 
 const ChatPage = () => {
   return (
-    <Suspense>
+    <Suspense fallback={
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="animate-pulse">Loading chat interface...</div>
+      </div>
+    }>
       <ChatProvider />
     </Suspense>
   )

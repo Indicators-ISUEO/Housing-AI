@@ -11,7 +11,6 @@ import type { ChatMessage } from './interface';
 
 import './index.scss';
 
-// Updated generateChatSummary function
 function generateChatSummary(messages: ChatMessage[]): { summary: string, agentResponse: string } {
   if (messages.length === 0) {
     return { summary: "New Chat", agentResponse: "" };
@@ -45,16 +44,21 @@ export const ChatSideBar = () => {
   const {
     currentChatRef,
     chatList,
-    DefaultPersonas,
     toggleSidebar,
     onDeleteChat,
     onChangeChat,
-    onCreateChat,
+    setShowWelcome
   } = useContext(ChatContext);
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter chat list based on the search term
+  const handleNewChat = () => {
+    if (currentChatRef?.current) {
+      currentChatRef.current = undefined;
+    }
+    setShowWelcome(true);
+  };
+
   const filteredChatList = chatList.filter(chat =>
     chat.persona?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     chat.messages?.some(message => message.content.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -84,7 +88,7 @@ export const ChatSideBar = () => {
             variant="ghost"
             color="gray"
             radius="full"
-            onClick={() => onCreateChat?.(DefaultPersonas[0])}
+            onClick={handleNewChat}
           >
             <FiPlus className="size-4" />
           </IconButton>
@@ -100,7 +104,10 @@ export const ChatSideBar = () => {
                   className={cs('bg-token-surface active:scale-95 truncate cursor-pointer', {
                     active: currentChatRef?.current?.id === chat.id
                   })}
-                  onClick={() => onChangeChat?.(chat)}
+                  onClick={() => {
+                    setShowWelcome(false);
+                    onChangeChat?.(chat);
+                  }}
                   style={{ padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                   <Flex direction="row" align="center" gap="2" style={{ flexGrow: 1 }}>
@@ -123,6 +130,9 @@ export const ChatSideBar = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteChat?.(chat);
+                      if (chatList.length <= 1) {
+                        setShowWelcome(true);
+                      }
                     }}
                   >
                     <AiOutlineCloseCircle className="size-4" />
