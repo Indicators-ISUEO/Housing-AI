@@ -50,7 +50,8 @@ const postChatOrQuestion = async (
   var url = "/chat";
   const proxy_url = window.location.href;
   if (proxy_url) {
-    url = proxy_url.replace("3000", "5000");
+    // url = proxy_url.replace("3000", "5000");
+    url = proxy_url.replace("3000", "8080");
   }
 
   const data = {

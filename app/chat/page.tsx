@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { Flex } from '@radix-ui/themes'
-import { Chat, ChatContext, ChatSideBar, useChatHook } from '@/components'
+import { Chat, ChatContext, ChatSideBar, useChatHook, ChatMessage, ChatRole } from '@/components'
 import { WelcomeScreen } from '@/components/Welcome'
 import PersonaModal from './PersonaModal'
 import PersonaPanel from './PersonaPanel'
@@ -11,31 +11,50 @@ const ChatProvider = () => {
   const provider = useChatHook()
   const [showWelcome, setShowWelcome] = useState(true)
 
-  const handleSuggestionClick = (prompt: string) => {
-    // Create new chat if needed
-    if (!provider.currentChatRef?.current) {
-      provider.onCreateChat?.(provider.DefaultPersonas[0])
+  const handleSuggestionClick = async (prompt: string) => {
+    const newChat = {
+      ...provider.DefaultPersonas[0],
+      name: `Chat - ${prompt.substring(0, 20)}...`
     }
+    await provider.onCreateChat?.(newChat)
     
-    // Hide welcome screen
     setShowWelcome(false)
-    
-    // Add the prompt to the conversation
-    setTimeout(() => {
-      const textArea = document.querySelector('.chat-textarea .rt-TextAreaInput') as HTMLElement;
-      if (textArea) {
-        textArea.innerHTML = prompt;
-        // Trigger enter key press to send message
-        const event = new KeyboardEvent('keydown', {
-          key: 'Enter',
-          code: 'Enter',
-          keyCode: 13,
-          which: 13,
-          bubbles: true
-        });
-        textArea.dispatchEvent(event);
+
+    // Adding assistant message immediately to show loading state
+    if (provider.currentChatRef?.current) {
+      const initialMessage: ChatMessage = {
+        role: 'assistant' as ChatRole,
+        content: 'Let me help you with that...'
       }
-    }, 100) // Small delay to ensure chat is mounted
+      
+      provider.currentChatRef.current.messages = [initialMessage]
+      provider.forceUpdate?.()
+    }
+
+    // Adding the user's prompt as a message
+    if (provider.chatRef?.current) {
+      const userMessage: ChatMessage = {
+        role: 'user' as ChatRole,
+        content: prompt
+      }
+      provider.chatRef.current.setConversation([userMessage])
+
+      setTimeout(() => {
+        const textArea = document.querySelector('.chat-textarea .rt-TextAreaInput') as HTMLElement
+        if (textArea) {
+          textArea.innerHTML = prompt
+          const enterEvent = new KeyboardEvent('keydown', {
+            key: 'Enter',
+            code: 'Enter',
+            keyCode: 13,
+            which: 13,
+            bubbles: true,
+            cancelable: true
+          })
+          textArea.dispatchEvent(enterEvent)
+        }
+      }, 100)
+    }
   }
 
   return (
