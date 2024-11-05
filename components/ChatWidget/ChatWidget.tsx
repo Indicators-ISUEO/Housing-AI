@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
 
   const handleSend = () => {

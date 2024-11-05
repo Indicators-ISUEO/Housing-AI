@@ -1,7 +1,7 @@
 'use client'
 
-import { Suspense, useState } from 'react'
-import { Flex, Box, Text } from '@radix-ui/themes'
+import { Suspense, useContext, useState } from 'react'
+import { Flex, Box, Text, ScrollArea } from '@radix-ui/themes'
 import { Chat, ChatContext, ChatSideBar, useChatHook, ChatMessage, ChatRole } from '@/components'
 import { WelcomeScreen } from '@/components/Welcome'
 import PersonaModal from './PersonaModal'
@@ -13,104 +13,22 @@ const ChatProvider = () => {
   const [showWelcome, setShowWelcome] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
+  var isWelcome = false
+  if (provider.currentChatRef.current) {
+    isWelcome = provider.currentChatRef.current.isWelcome ?? false
+  }
+
   const handleSuggestionClick = async (prompt: string) => {
     if (isLoading) return;
-
-    setIsLoading(true);
-    try {
-      const newChat = {
-        ...provider.DefaultPersonas[0],
-        name: `Chat - ${prompt.substring(0, 20)}...`
-      }
-      await provider.onCreateChat?.(newChat)
-
-      const userMessage: ChatMessage = {
-        role: 'user' as ChatRole,
-        content: prompt
-      }
-
-      if (provider.chatRef?.current) {
-        provider.chatRef.current.setConversation([userMessage])
-      }
-
+    if (provider.currentChatRef) {
+      console.log(provider.currentChatRef.current?.messages?.length)
       setShowWelcome(false)
-
-      let url = '/chat'
-      const proxy_url = window.location.href
-      if (proxy_url) {
-        url = proxy_url.replace("3000", "8080")
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
-        },
-        body: JSON.stringify({
-          prompt: provider.DefaultPersonas[0].prompt,
-          messages: [userMessage],
-          input: prompt
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error('Stream reader not available');
-      }
-
-      const assistantMessage: ChatMessage = {
-        role: 'assistant' as ChatRole,
-        content: ''
-      }
-
-      let assistantResponse = '';
-
-      if (provider.chatRef?.current) {
-        provider.chatRef.current.setConversation([
-          userMessage,
-          assistantMessage
-        ])
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        assistantResponse += chunk;
-
-        if (provider.chatRef?.current) {
-          provider.chatRef.current.setConversation([
-            userMessage,
-            { ...assistantMessage, content: assistantResponse }
-          ])
+      if (provider.currentChatRef.current) {
+        provider.currentChatRef.current.isWelcome = false
+        if(provider.currentChatRef.current.persona) {
+          provider.currentChatRef.current.persona.prompt = prompt
         }
       }
-
-      const finalMessages: ChatMessage[] = [
-        userMessage,
-        { ...assistantMessage, content: assistantResponse }
-      ]
-      await provider.saveMessages?.(finalMessages)
-      provider.forceUpdate?.()
-
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('An error occurred. Please try again.')
-      setShowWelcome(true)
-      
-      if (provider.currentChatRef?.current) {
-        provider.currentChatRef.current = undefined
-      }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -127,8 +45,8 @@ const ChatProvider = () => {
           <Box style={{ height: 'calc(100% - 100px)' }} className="relative">
             <Flex style={{ height: '100%' }}>
               <ChatSideBar />
-              <div className="flex-1">
-                {showWelcome ? (
+              <div className="flex-1"> 
+                {isWelcome ? (
                   <WelcomeScreen 
                     onSuggestionClick={handleSuggestionClick} 
                     isLoading={isLoading}

@@ -55,6 +55,7 @@ const postChatOrQuestion = async (
   }
 
   const data = {
+    id: chat?.id,
     prompt: chat?.persona?.prompt,
     messages: [...messages!],
     input,
@@ -453,31 +454,6 @@ const Chat = (props: ChatProps, ref: any) => {
               onBlur={() => setShowSuggestions(false)} // Hide suggestions when input loses focus
               onFocus={() => setShowSuggestions(suggestions.length > 0)} // Show suggestions when input gains focus
             />
-            <div className="rt-TextAreaChrome"></div>
-            {showSuggestions && (
-              <div
-                className="autocomplete-suggestions"
-                style={{ bottom: "60px", left: 0, width: "100%" }} // Adjust bottom and left to position it above the text bar
-              >
-                {suggestions.map((suggestion, index) => (
-                  <div key={index}>
-                    <div
-                      className="autocomplete-suggestion"
-                      onMouseDown={() => {
-                        setMessage(suggestion);
-                        setSuggestions([]);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      {truncateText(suggestion, 150)}
-                    </div>
-                    {index < suggestions.length - 1 && (
-                      <hr className="suggestion-divider" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
           <Flex gap="3" className="absolute right-0 pr-4 bottom-2 pt">
             {isLoading && (

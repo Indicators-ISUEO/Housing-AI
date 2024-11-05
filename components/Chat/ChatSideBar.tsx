@@ -10,6 +10,7 @@ import ChatContext from './chatContext';
 import type { ChatMessage } from './interface';
 
 import './index.scss';
+import { set } from 'react-hook-form';
 
 function generateChatSummary(messages: ChatMessage[]): { summary: string, agentResponse: string } {
   if (messages.length === 0) {
@@ -47,16 +48,16 @@ export const ChatSideBar = () => {
     toggleSidebar,
     onDeleteChat,
     onChangeChat,
+    onCreateChat,
+    DefaultPersonas,
     setShowWelcome
   } = useContext(ChatContext);
 
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleNewChat = () => {
-    if (currentChatRef?.current) {
-      currentChatRef.current = undefined;
-    }
-    setShowWelcome(true);
+    onCreateChat?.(DefaultPersonas[0])
+    setShowWelcome(true)
   };
 
   const filteredChatList = chatList.filter(chat =>
@@ -104,10 +105,7 @@ export const ChatSideBar = () => {
                   className={cs('bg-token-surface active:scale-95 truncate cursor-pointer', {
                     active: currentChatRef?.current?.id === chat.id
                   })}
-                  onClick={() => {
-                    setShowWelcome(false);
-                    onChangeChat?.(chat);
-                  }}
+                  onClick={() => onChangeChat?.(chat)}
                   style={{ padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                 >
                   <Flex direction="row" align="center" gap="2" style={{ flexGrow: 1 }}>
