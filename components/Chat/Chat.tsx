@@ -42,16 +42,11 @@ export interface ChatGPInstance {
   focus: () => void;
 }
 
-const postChatOrQuestion = async (
-  chat: Chat,
-  messages: any[],
-  input: string
-) => {
+const postChatOrQuestion = async (chat: Chat, messages: any[], input: string) => {
   var url = "/chat";
-  const proxy_url = window.location.href;
+  const proxy_url = process.env.NEXT_PUBLIC_HOST;
   if (proxy_url) {
-    // url = proxy_url.replace("3000", "5000");
-    url = proxy_url.replace("3000", "8080");
+    url = proxy_url + url;
   }
 
   const data = {
