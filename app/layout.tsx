@@ -1,10 +1,9 @@
-import { Analytics } from "@vercel/analytics/react";
-import { Toaster } from "react-hot-toast";
-import { Header } from "@/components/Header";
-import ThemesProvider from "@/providers/ThemesProvider";
+import { Toaster } from 'react-hot-toast';
+import { Header } from '@/components/Header';
+import ThemesProvider from '@/providers/ThemesProvider';
 import { ChatWidgetProvider } from "@/components/ChatWidget";
-import "@/styles/globals.scss";
-import "@/styles/theme-config.css";
+import '@/styles/globals.scss';
+import '@/styles/theme-config.css';
 
 export const metadata = {
   title: {
@@ -34,7 +33,6 @@ export default function RootLayout({
           <ChatWidgetProvider />
           <Toaster />
         </ThemesProvider>
-        <Analytics />
       </body>
     </html>
   );
