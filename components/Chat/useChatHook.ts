@@ -113,18 +113,9 @@ const useChatHook = () => {
       const newChat: Chat = {
         id,
         persona: persona,
-        messages: [] // Initialize an empty messages array for each new chat
+        messages: [], // Initialize an empty messages array for each new chat,
+        isWelcome: true
       }
-
-  // const onCreateChat = useCallback(
-  //   (persona: Persona) => {
-  //     const chatNumber = chatCounterRef.current++;
-  //     const id = uuid()
-  //     const newChat: Chat = {
-  //       id,
-  //       persona: { ...persona, name: `Housing & AI Chat ${chatNumber}` },
-  //       messages: [] // Initialize an empty messages array for each new chat
-  //     }
 
       setChatList((state) => {
         return [...state, newChat]

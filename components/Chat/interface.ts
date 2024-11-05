@@ -19,6 +19,7 @@ export interface Chat {
   persona?: Persona
   messages?: ChatMessage[]
   summary?: string
+  isWelcome?: boolean
 }
 
 export type ChatRole = 'assistant' | 'user' | 'system' | 'agent';

@@ -1,33 +1,39 @@
-import { Toaster } from 'react-hot-toast'
-import { Header } from '@/components/Header'
-import ThemesProvider from '@/providers/ThemesProvider'
-import '@/styles/globals.scss'
-import '@/styles/theme-config.css'
+import { Toaster } from 'react-hot-toast';
+import { Header } from '@/components/Header';
+import ThemesProvider from '@/providers/ThemesProvider';
+import { ChatWidgetProvider } from "@/components/ChatWidget";
+import '@/styles/globals.scss';
+import '@/styles/theme-config.css';
 
 export const metadata = {
   title: {
-    default: 'ChatGPT Lite',
-    template: `%s - ChatGPT Lite`
+    default: "Iowa State University Extensions and Outreach - CED",
+    template: `%s - ISU Extensions and Outreach - CED`,
   },
-  description: 'AI assistant powered by ChatGPT',
+  description:
+    "Iowa State University Extensions and Outreach - CED Chat Interface",
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
-  }
-}
+    icon: "/Cy.png",
+    shortcut: "/Cy.png",
+    apple: "/Cy.png",
+  },
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemesProvider>
           <Header />
           {children}
+          <ChatWidgetProvider />
           <Toaster />
         </ThemesProvider>
-        {/* <Analytics /> */}
       </body>
     </html>
-  )
+  );
 }

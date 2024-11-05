@@ -9,13 +9,30 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+      colors: {
+        // ISU Primary Colors
+        isu: {
+          cardinal: '#C8102E', // Primary red
+          gold: '#F1BE48',    // Primary gold
+          darkGreen: '#524727',
+          sage: '#9B945F',
+          warm: '#CAC7A7',
+        },
+        // Message colors
+        message: {
+          user: '#C8102E',    // ISU Cardinal for user messages
+          assistant: '#CAC7A7' // ISU Warm for assistant messages
+        },
+        // Background colors
+        background: {
+          primary: '#FFFFFF',
+          secondary: '#F5F5F5',
+          dark: '#1A1A1A'
+        }
       }
     }
   },
-  daisyui: {},
   plugins: [require('postcss-import'), require('@tailwindcss/typography')]
 }
+
 export default config
