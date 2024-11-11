@@ -13,9 +13,9 @@ export const metadata = {
   description:
     "Iowa State University Extensions and Outreach - CED Chat Interface",
   icons: {
-    icon: "/Cy.png",
-    shortcut: "/Cy.png",
-    apple: "/Cy.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 

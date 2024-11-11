@@ -44,7 +44,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
         <Flex align="center" gap="2">
           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2 border-white">
             <Image 
-              src="/Cy.png" 
+              src="/favicon.ico" 
               alt="Cy" 
               width={32} 
               height={32}
@@ -80,7 +80,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
         <Flex gap="2" className="mb-4">
           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
             <Image 
-              src="/Cy.png"
+              src="/favicon.ico"
               alt="Cy"
               width={32}
               height={32}
@@ -104,7 +104,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
               {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                   <Image 
-                    src="/Cy.png"
+                    src="/favicon.ico"
                     alt="Cy"
                     width={32}
                     height={32}
@@ -162,7 +162,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
     >
       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
         <Image 
-          src="/Cy.png" 
+          src="/favicon.ico" 
           alt="Chat with ISU Extension" 
           width={32} 
           height={32}
