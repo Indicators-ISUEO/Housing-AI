@@ -389,13 +389,10 @@ const Chat = (props: ChatProps, ref: any) => {
       <Flex
         justify="between"
         align="center"
-        py="3"
-        px="4"
+        py="1"
+        px="1"
         style={{ backgroundColor: "var(--gray-a2)" }}
       >
-        <Heading size="4">
-          Iowa State University Extensions and Outreach - CED
-        </Heading>
       </Flex>
       <ScrollArea
         className="flex-1 px-4"
