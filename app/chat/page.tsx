@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useContext, useState } from 'react'
+import { Suspense, useContext, useState, useEffect } from 'react'
 import { Flex, Box, Text, ScrollArea } from '@radix-ui/themes'
 import { Chat, ChatContext, ChatSideBar, useChatHook, ChatMessage, ChatRole } from '@/components'
 import { WelcomeScreen } from '@/components/Welcome'
@@ -12,25 +12,61 @@ const ChatProvider = () => {
   const provider = useChatHook()
   const [showWelcome, setShowWelcome] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [isChatReady, setIsChatReady] = useState(false)
 
   var isWelcome = false
   if (provider.currentChatRef.current) {
     isWelcome = provider.currentChatRef.current.isWelcome ?? false
   }
 
+  useEffect(() => {
+    setIsChatReady(true);
+  }, []);
+
   const handleSuggestionClick = async (prompt: string) => {
+    console.log("handleSuggestionClick called with prompt:", prompt);
     if (isLoading) return;
-    if (provider.currentChatRef) {
-      console.log(provider.currentChatRef.current?.messages?.length)
-      setShowWelcome(false)
+    setIsLoading(true);
+
+    try {
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content: prompt
+      };
+      console.log("Created user message:", userMessage);
+
       if (provider.currentChatRef.current) {
-        provider.currentChatRef.current.isWelcome = false
-        if(provider.currentChatRef.current.persona) {
-          provider.currentChatRef.current.persona.prompt = prompt
+        console.log("Current chat ref exists");
+        provider.currentChatRef.current.isWelcome = false;
+        
+        if (provider.currentChatRef.current.persona) {
+          console.log("Setting persona prompt");
+          provider.currentChatRef.current.persona.prompt = prompt;
+        }
+
+        setShowWelcome(false);
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        if (provider.chatRef.current) {
+          console.log("Chat ref exists, setting conversation");
+
+          provider.chatRef.current.setConversation([]);
+          
+          console.log("Calling sendMessage");
+          await provider.chatRef.current.sendMessage(prompt);
+        } else {
+          console.log("Chat ref is still null after mounting");
+          toast.error('Failed to initialize chat. Please try again.');
         }
       }
+    } catch (error) {
+      console.error('Error processing suggestion:', error);
+      toast.error('Failed to process your request. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Box style={{ height: 'calc(100vh - 56px)' }}>
@@ -45,13 +81,16 @@ const ChatProvider = () => {
             <Flex style={{ height: '100%' }}>
               <ChatSideBar />
               <div className="flex-1"> 
-                {isWelcome ? (
+                {showWelcome ? (
                   <WelcomeScreen 
                     onSuggestionClick={handleSuggestionClick} 
                     isLoading={isLoading}
                   />
                 ) : (
-                  <Chat ref={provider.chatRef} />
+                  <Chat 
+                    ref={provider.chatRef} 
+                    key={isWelcome ? 'welcome' : 'chat'} // Force new instance when switching
+                  />
                 )}
                 <PersonaPanel />
               </div>
@@ -80,8 +119,8 @@ const ChatProvider = () => {
         <PersonaModal />
       </ChatContext.Provider>
     </Box>
-  )
-}
+  );
+};
 
 const ChatPage = () => {
   return (
@@ -92,7 +131,7 @@ const ChatPage = () => {
     }>
       <ChatProvider />
     </Suspense>
-  )
-}
+  );
+};
 
-export default ChatPage
+export default ChatPage;

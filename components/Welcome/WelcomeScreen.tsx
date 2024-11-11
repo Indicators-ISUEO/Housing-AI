@@ -21,7 +21,7 @@ const HTML_REGULAR =
   /<(?!img|table|\/table|thead|\/thead|tbody|\/tbody|tr|\/tr|td|\/td|th|\/th|br|\/br).*?>/gi;
 
 interface WelcomeScreenProps {
-  onSuggestionClick: (prompt: string) => void;
+  onSuggestionClick: (prompt: string) => Promise<void>;  // Changed to Promise<void>
   isLoading: boolean;
 }
 
@@ -52,31 +52,36 @@ const WelcomeScreen = ({
     },
   ];
 
-  const handleSendMessage = (e: any) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     if (!isLoading) {
       e.preventDefault();
-      const input =
-        textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+      const input = textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
 
       if (input.length < 1) {
         return;
       }
 
-      onSuggestionClick(input);
+      await onSuggestionClick(input);
       setMessage("");
     }
   };
 
-  const handleKeypress = (e: any) => {
-    if (e.keyCode == 13 && !e.shiftKey) {
-      handleSendMessage(e);
+  const handleKeypress = async (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
+      await handleSendMessage(e);
+    }
+  };
+
+  const handleSuggestionButtonClick = async (e: React.MouseEvent, prompt: string) => {
+    e.stopPropagation();
+    if (!isLoading) {
+      await onSuggestionClick(prompt);
     }
   };
 
   return (
     <Box className="flex flex-col h-full">
-      {/* Main Content */}
       <ScrollArea
         className="flex-1 px-4 md:p-8 max-w-5xl mx-auto"
         type="auto"
@@ -120,7 +125,6 @@ const WelcomeScreen = ({
                      hover:shadow-md border border-[#9B945F] dark:border-[#C8102E]
                      hover:transform hover:-translate-y-1 bg-white dark:bg-[#1a1a1a]
                      dark:hover:bg-[#242424]"
-              onClick={() => !isLoading && onSuggestionClick(suggestion.prompt)}
             >
               <Flex direction="column" gap="3" className="p-4">
                 <Flex
@@ -144,12 +148,7 @@ const WelcomeScreen = ({
                 <button
                   className="ask-about-button"
                   disabled={isLoading}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isLoading) {
-                      onSuggestionClick(suggestion.prompt);
-                    }
-                  }}
+                  onClick={(e) => handleSuggestionButtonClick(e, suggestion.prompt)}
                 >
                   {isLoading ? "Processing..." : "Ask about this"}
                 </button>
@@ -180,9 +179,7 @@ const WelcomeScreen = ({
                 const value = e.target.value.replace(HTML_REGULAR, "");
                 setMessage(value);
               }}
-              onKeyDown={(e) => {
-                handleKeypress(e);
-              }}
+              onKeyDown={handleKeypress}
             />
             <div className="rt-TextAreaChrome"></div>
           </div>
@@ -198,7 +195,7 @@ const WelcomeScreen = ({
                 <AiOutlineLoading3Quarters className="animate-spin size-4" />
               </Flex>
             )}
-            <Tooltip content={"Send Message"}>
+            <Tooltip content="Send Message">
               <IconButton
                 variant="soft"
                 disabled={isLoading}
