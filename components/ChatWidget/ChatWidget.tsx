@@ -169,7 +169,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
           className="object-cover"
         />
       </div>
-      <span className="font-semibold whitespace-nowrap">Cyclone AI</span>
+      <span className="font-semibold whitespace-nowrap">Extension AI Assistant</span>
       <FaComments className="text-xl ml-2" />
     </button>
   );
