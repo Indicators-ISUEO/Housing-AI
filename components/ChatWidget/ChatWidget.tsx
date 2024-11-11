@@ -5,15 +5,10 @@ import { Card, Flex, Text, Button, Box } from '@radix-ui/themes';
 import { FaPaperPlane, FaComments } from 'react-icons/fa';
 import { Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
-import type { ChatMessage } from './types';
+import type { ChatMessage, ChatWidgetProps } from './types';
+import { Markdown } from '@/components';
 
-interface Props {
-  onSendMessage: (message: string) => void;
-  messages: ChatMessage[];
-  isLoading?: boolean;
-}
-
-const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
+const ChatWidget = ({ onSendMessage, messages, isLoading, currentMessage }: ChatWidgetProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
 
@@ -31,6 +26,61 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
     }
   };
 
+  const renderMessages = () => (
+    <>
+      {messages.map((msg, index) => (
+        <Box 
+          key={index}
+          className={`mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}
+        >
+          <Flex 
+            gap="2" 
+            className={msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}
+          >
+            {msg.role === 'assistant' && (
+              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                <Image 
+                  src="/favicon.ico"
+                  alt="Cy"
+                  width={32}
+                  height={32}
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <Box
+              className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                msg.role === 'user' 
+                  ? 'bg-[#C8102E] text-white' 
+                  : 'bg-white shadow-sm'
+              }`}
+            >
+              <Markdown>{msg.content}</Markdown>
+            </Box>
+          </Flex>
+        </Box>
+      ))}
+      {currentMessage && (
+        <Box className="mb-4">
+          <Flex gap="2">
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+              <Image 
+                src="/favicon.ico"
+                alt="Cy"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            </div>
+            <Box className="inline-block p-3 rounded-lg max-w-[80%] bg-white shadow-sm">
+              <Markdown>{currentMessage}</Markdown>
+            </Box>
+          </Flex>
+        </Box>
+      )}
+    </>
+  );
+
   const widget = (
     <Card className="fixed bottom-[120px] right-4 w-80 shadow-xl rounded-lg overflow-hidden z-50">
       {/* Header */}
@@ -44,7 +94,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
         <Flex align="center" gap="2">
           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2 border-white">
             <Image 
-              src="/Cy.png" 
+              src="/favicon.ico" 
               alt="Cy" 
               width={32} 
               height={32}
@@ -77,53 +127,24 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
         style={{ backgroundColor: '#f8f8f8' }}
       >
         {/* Welcome Message */}
-        <Flex gap="2" className="mb-4">
-          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-            <Image 
-              src="/Cy.png"
-              alt="Cy"
-              width={32}
-              height={32}
-              className="object-cover"
-            />
-          </div>
-          <Box className="bg-white p-3 rounded-lg shadow-sm flex-1">
-            <Text>Welcome to ISU Extension Chat! How can I help you today?</Text>
-          </Box>
-        </Flex>
+        {messages.length === 0 && (
+          <Flex gap="2" className="mb-4">
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+              <Image 
+                src="/favicon.ico"
+                alt="Cy"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            </div>
+            <Box className="bg-white p-3 rounded-lg shadow-sm flex-1">
+              <Text>Welcome to ISU Extension Chat! How can I help you today?</Text>
+            </Box>
+          </Flex>
+        )}
 
-        {messages.map((msg, index) => (
-          <Box 
-            key={index}
-            className={`mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}
-          >
-            <Flex 
-              gap="2" 
-              className={msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}
-            >
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                  <Image 
-                    src="/Cy.png"
-                    alt="Cy"
-                    width={32}
-                    height={32}
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <Box
-                className={`inline-block p-3 rounded-lg max-w-[80%] ${
-                  msg.role === 'user' 
-                    ? 'bg-[#C8102E] text-white' 
-                    : 'bg-white shadow-sm'
-                }`}
-              >
-                {msg.content}
-              </Box>
-            </Flex>
-          </Box>
-        ))}
+        {renderMessages()}
       </Box>
 
       {/* Input Area */}
@@ -162,18 +183,19 @@ const ChatWidget = ({ onSendMessage, messages, isLoading }: Props) => {
     >
       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
         <Image 
-          src="/Cy.png" 
+          src="/favicon.ico" 
           alt="Chat with ISU Extension" 
           width={32} 
           height={32}
           className="object-cover"
         />
       </div>
-      <span className="font-semibold whitespace-nowrap">Cyclone AI</span>
+      <span className="font-semibold whitespace-nowrap">Extension AI Assistant</span>
       <FaComments className="text-xl ml-2" />
     </button>
   );
 
   return isOpen ? widget : chatButton;
 };
+
 export default ChatWidget;

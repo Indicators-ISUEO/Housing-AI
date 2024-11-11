@@ -18,15 +18,23 @@ const ChatProvider = () => {
     isWelcome = provider.currentChatRef.current.isWelcome ?? false
   }
 
-  const handleSuggestionClick = async (prompt: string) => {
+  const handleSuggestionClick = async (suggestion: any) => {
     if (isLoading) return;
     if (provider.currentChatRef) {
-      console.log(provider.currentChatRef.current?.messages?.length)
-      setShowWelcome(false)
       if (provider.currentChatRef.current) {
         provider.currentChatRef.current.isWelcome = false
+        setShowWelcome(false)
+        if (!(provider.currentChatRef.current.messages)) {
+          provider.currentChatRef.current.messages = []
+        }
+        provider.currentChatRef.current.messages = [
+          ...provider.currentChatRef.current.messages,
+          { content: suggestion.question, role: "user" },
+          { content: suggestion.answer, role: "assistant" },
+        ];
+        provider.saveMessages(provider.currentChatRef.current.messages)
         if(provider.currentChatRef.current.persona) {
-          provider.currentChatRef.current.persona.prompt = prompt
+          provider.currentChatRef.current.persona.prompt = suggestion.prompt
         }
       }
     }
@@ -41,13 +49,12 @@ const ChatProvider = () => {
         isLoading
       }}>
         <Flex direction="column" style={{ height: '100%' }}>
-          {/* Main Content Area with fixed height */}
-          <Box style={{ height: 'calc(100% - 100px)' }} className="relative">
+          <Box style={{ flex: 1, overflow: 'hidden' }} className="relative">
             <Flex style={{ height: '100%' }}>
               <ChatSideBar />
               <div className="flex-1"> 
                 {isWelcome ? (
-                  <WelcomeScreen 
+                  <WelcomeScreen
                     onSuggestionClick={handleSuggestionClick} 
                     isLoading={isLoading}
                   />
@@ -59,13 +66,20 @@ const ChatProvider = () => {
             </Flex>
           </Box>
 
-          {/* Footer with fixed height */}
-          <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+          <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#C8102E]/20" style={{ marginTop: 'auto' }}>
             <Flex direction="column" gap="2" className="max-w-5xl mx-auto text-center">
-              <Text size="1" className="text-gray-600 dark:text-gray-400">
-                Disclaimer: This AI assistant can make mistakes. Please check for accuracy!
+              <Text size="1" className="text-gray-600 dark:text-[#F1BE48] font-medium">
+                Disclaimer: Extension AI assistant can make mistakes. Please check for accuracy! 
+                <a 
+                  href="https://iastate.qualtrics.com/jfe/form/SV_0DkSXyKvW6odP1k" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#C8102E] dark:text-[#F1BE48] hover:underline ml-2"
+                >
+                  Provide feedback
+                </a>
               </Text>
-              <Text size="1" className="text-gray-500 dark:text-gray-500">
+              <Text size="1" className="text-gray-500 dark:text-[#e5e5e5]">
                 © {new Date().getFullYear()} Iowa State University Extension and Outreach. All rights reserved.
               </Text>
             </Flex>
@@ -81,7 +95,7 @@ const ChatPage = () => {
   return (
     <Suspense fallback={
       <div className="w-full h-full flex items-center justify-center">
-        <div className="animate-pulse">Loading chat interface...</div>
+        <div className="animate-pulse dark:text-[#F1BE48]">Loading chat interface...</div>
       </div>
     }>
       <ChatProvider />

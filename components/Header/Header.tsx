@@ -64,8 +64,8 @@ export const Header = () => {
                 lineHeight: "1.2",
               }}
             >
-              <span className="hidden sm:inline">Iowa State University </span>
-              Extensions and Outreach - CED
+              <span className="hidden sm:inline">Iowa State University - </span>
+              Extension AI Assistant
             </Heading>
           </div>
 
@@ -77,7 +77,7 @@ export const Header = () => {
               radius="full"
               fallback={
                 <Link
-                  href="https://github.com/DSPG-2024-Work/Housing-AI/issues/new"
+                  href="https://iastate.qualtrics.com/jfe/form/SV_0DkSXyKvW6odP1k"
                   className="flex items-center justify-center w-full h-full"
                 >
                   <FaGithub className="w-4 h-4" />

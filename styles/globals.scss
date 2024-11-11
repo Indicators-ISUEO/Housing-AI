@@ -165,6 +165,50 @@ body {
   }
 }
 
+// Ask About This Buttons
+.ask-about-button,
+[class*="ask-about"],
+button[data-variant="soft"] {
+  background-color: rgba(200, 16, 46, 0.1);
+  border: 2px solid var(--isu-cardinal);
+  color: var(--isu-cardinal);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin-top: 1rem;
+  
+  &:hover {
+    background-color: var(--isu-cardinal);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:after {
+    content: "→";
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+
+  &:hover:after {
+    transform: translateX(4px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
 // Dark Mode Styles
 .dark {
   .rt-Heading {
@@ -205,6 +249,31 @@ body {
     
     &:hover {
       border-color: var(--isu-gold);
+    }
+  }
+
+  // Dark theme button styles
+  .ask-about-button,
+  [class*="ask-about"],
+  button[data-variant="soft"] {
+    background-color: rgba(200, 16, 46, 0.15);
+    border: 2px solid var(--isu-cardinal);
+    color: var(--isu-gold);
+
+    &:hover {
+      background-color: var(--isu-cardinal);
+      border-color: var(--isu-gold);
+      color: var(--isu-gold);
+      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      &:hover {
+        background-color: rgba(200, 16, 46, 0.15);
+        border-color: var(--isu-cardinal);
+      }
     }
   }
 }
@@ -332,47 +401,47 @@ body {
   }
 }
 
-textarea {
-  background-color: white;
-  color: black;
-  padding: 8px;
-  border-radius: 4px;
-  width: 100%;
-  min-height: 40px;
-  resize: none;
-  outline: none;
-  border: 1px solid #e2e8f0;
+// textarea {
+//   background-color: white;
+//   color: black;
+//   padding: 8px;
+//   border-radius: 4px;
+//   width: 100%;
+//   min-height: 40px;
+//   resize: none;
+//   outline: none;
+//   border: 1px solid #e2e8f0;
   
-  &:focus {
-    border-color: #500000;
-    box-shadow: 0 0 0 1px #500000;
-  }
+//   &:focus {
+//     border-color: #500000;
+//     box-shadow: 0 0 0 1px #500000;
+//   }
   
-  &::placeholder {
-    color: #a0aec0;
-  }
-}
+//   &::placeholder {
+//     color: #a0aec0;
+//   }
+// }
 
-.fixed {
-  z-index: 1000;
-}
-.chat-widget {
-  textarea {
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  }
+// .fixed {
+//   z-index: 1000;
+// }
+// .chat-widget {
+//   textarea {
+//     &:disabled {
+//       opacity: 0.7;
+//       cursor: not-allowed;
+//     }
+//   }
 
-  .message-bubble {
-    word-break: break-word;
-  }
+//   .message-bubble {
+//     word-break: break-word;
+//   }
 
-  .avatar-isu {
-    background-color: #C8102E;
-    color: white;
-  }
-}
+//   .avatar-isu {
+//     background-color: #C8102E;
+//     color: white;
+//   }
+// }
 html, body {
   height: 100%;
   overflow: hidden;
