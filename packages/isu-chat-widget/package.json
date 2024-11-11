@@ -8,22 +8,21 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs,iife --dts --external react",
-    "dev": "tsup src/index.tsx --format esm,cjs,iife --dts --external react --watch",
-    "clean": "rm -rf dist"
+    "build": "tsup src/index.ts --format esm,cjs,iife --dts --external react",
+    "dev": "tsup src/index.ts --format esm,cjs,iife --dts --external react --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
-  "dependencies": {
-    "@radix-ui/themes": "^2.0.0",
-    "react-icons": "^5.0.0"
+    "react-dom": "^18.0.0",
+    "@radix-ui/themes": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@radix-ui/themes": "^2.0.0"
   }
 }
