@@ -9,6 +9,7 @@ import {
   useContext,
   forwardRef,
   useImperativeHandle,
+  use,
 } from "react";
 import {
   Flex,
@@ -269,6 +270,14 @@ const Chat = (props: ChatProps, ref: any) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    if (currentChatRef?.current?.messages) {
+      conversation.current = [
+        ...currentChatRef?.current?.messages,
+      ];
+      setCurrentMessage("");
+    }
+  }, []);
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "50px";
