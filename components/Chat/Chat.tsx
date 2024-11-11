@@ -9,6 +9,7 @@ import {
   useContext,
   forwardRef,
   useImperativeHandle,
+  use,
 } from "react";
 import {
   Flex,
@@ -214,6 +215,14 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    if (currentChatRef?.current?.messages) {
+      conversation.current = [
+        ...currentChatRef?.current?.messages,
+      ];
+      setCurrentMessage("");
+    }
+  }, []);
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "50px";
