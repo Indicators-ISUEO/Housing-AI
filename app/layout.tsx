@@ -25,13 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="h-full">
-      <body className="flex flex-col min-h-full">
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <ThemesProvider>
           <Header />
-          <main className="flex-1">
-            {children}
-          </main>
+          {children}
           <ChatWidgetProvider />
           <Toaster />
         </ThemesProvider>
