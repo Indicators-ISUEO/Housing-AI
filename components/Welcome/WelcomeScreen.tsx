@@ -31,28 +31,24 @@ const WelcomeScreen = ({
 }: WelcomeScreenProps) => {
   const [message, setMessage] = useState("");
   const textAreaRef = useRef<HTMLElement>(null);
-
   const suggestions = [
     {
       icon: <HomeIcon className="size-5" />,
       title: "Rural Housing Readiness Assessment",
-      description: "Learn about RHRA program",
-      prompt:
-        "You are an AI assitant to help answer question about Rural Housing Readiness Assessment program which is part of Iowa State University Extensions and Outreach",
+      description: "What is the Rural Housing Readiness Assessment program and how can it help my community?",
+      prompt: "What is the Rural Housing Readiness Assessment program and how can it help my community?"
     },
     {
       icon: <FaBuilding className="size-5" />,
       title: "Population in Iowa's Counties",
-      description: "Census 2020: Population in Iowa's Counties",
-      prompt:
-        "You are an AI assitant to help answer question about Population in Iowa's Counties program which is part of Iowa State University Extensions and Outreach's Indicators Program",
+      description: "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
+      prompt: "Can you tell me about population changes in Iowa counties according to the 2020 Census?"
     },
     {
       icon: <ChatBubbleIcon className="size-5" />,
       title: "Housing Needs Assessment",
-      description: "Get help with housing assessments and fairness prgrams",
-      prompt:
-        "You are an AI assitant to help answer question about Housing needs assessment",
+      description: "How do I conduct a housing needs assessment for my community?",
+      prompt: "How do I conduct a housing needs assessment for my community?"
     },
   ];
 
@@ -95,14 +91,7 @@ const WelcomeScreen = ({
               align="center"
               className="text-[#C8102E] dark:text-[#F1BE48]"
             >
-              Welcome to Iowa State University Extensions and Outreach
-            </Text>
-            <Text
-              size="4"
-              align="center"
-              className="text-[#524727] dark:text-[#e5e5e5]"
-            >
-              Community and Economic Development (CED)
+              Welcome to ISU Extension and Outreach AI Assistant
             </Text>
             <Text
               align="center"

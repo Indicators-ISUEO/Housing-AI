@@ -64,8 +64,8 @@ export const Header = () => {
                 lineHeight: "1.2",
               }}
             >
-              <span className="hidden sm:inline">Iowa State University </span>
-              Extensions and Outreach - CED
+              <span className="hidden sm:inline">Iowa State University - </span>
+              Extension AI Assistant
             </Heading>
           </div>
 
