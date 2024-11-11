@@ -61,7 +61,15 @@ const ChatProvider = () => {
           <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#C8102E]/20" style={{ marginTop: 'auto' }}>
             <Flex direction="column" gap="2" className="max-w-5xl mx-auto text-center">
               <Text size="1" className="text-gray-600 dark:text-[#F1BE48] font-medium">
-                Disclaimer: This AI assistant can make mistakes. Please check for accuracy!
+                Disclaimer: Extension AI assistant can make mistakes. Please check for accuracy! 
+                <a 
+                  href="https://iastate.qualtrics.com/jfe/form/SV_0DkSXyKvW6odP1k" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#C8102E] dark:text-[#F1BE48] hover:underline ml-2"
+                >
+                  Provide feedback
+                </a>
               </Text>
               <Text size="1" className="text-gray-500 dark:text-[#e5e5e5]">
                 © {new Date().getFullYear()} Iowa State University Extension and Outreach. All rights reserved.
