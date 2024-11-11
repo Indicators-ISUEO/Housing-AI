@@ -59,7 +59,6 @@ const ChatProvider = () => {
             </Flex>
           </Box>
 
-          {/* Updated Footer with fixed height */}
           <Box className="w-full px-4 py-6 bg-gray-100 dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#C8102E]/20">
             <Flex direction="column" gap="2" className="max-w-5xl mx-auto text-center">
               <Text size="1" className="text-gray-600 dark:text-[#F1BE48] font-medium">
