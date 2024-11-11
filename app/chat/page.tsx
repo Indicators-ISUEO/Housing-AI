@@ -18,15 +18,23 @@ const ChatProvider = () => {
     isWelcome = provider.currentChatRef.current.isWelcome ?? false
   }
 
-  const handleSuggestionClick = async (prompt: string) => {
+  const handleSuggestionClick = async (suggestion: any) => {
     if (isLoading) return;
     if (provider.currentChatRef) {
-      console.log(provider.currentChatRef.current?.messages?.length)
-      setShowWelcome(false)
       if (provider.currentChatRef.current) {
         provider.currentChatRef.current.isWelcome = false
+        setShowWelcome(false)
+        if (!(provider.currentChatRef.current.messages)) {
+          provider.currentChatRef.current.messages = []
+        }
+        provider.currentChatRef.current.messages = [
+          ...provider.currentChatRef.current.messages,
+          { content: suggestion.question, role: "user" },
+          { content: suggestion.answer, role: "assistant" },
+        ];
+        provider.saveMessages(provider.currentChatRef.current.messages)
         if(provider.currentChatRef.current.persona) {
-          provider.currentChatRef.current.persona.prompt = prompt
+          provider.currentChatRef.current.persona.prompt = suggestion.prompt
         }
       }
     }
@@ -46,7 +54,7 @@ const ChatProvider = () => {
               <ChatSideBar />
               <div className="flex-1"> 
                 {isWelcome ? (
-                  <WelcomeScreen 
+                  <WelcomeScreen
                     onSuggestionClick={handleSuggestionClick} 
                     isLoading={isLoading}
                   />
