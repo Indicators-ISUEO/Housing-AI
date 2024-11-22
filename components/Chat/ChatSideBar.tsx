@@ -29,12 +29,14 @@ function generateChatSummary(messages: ChatMessage[]): { summary: string, agentR
 
   if (assistantMessages.length > 0) {
     const lastAgentMessage = assistantMessages[assistantMessages.length - 1];
-    if (lastAgentMessage.content.includes('<iframe')) {
-      agentResponse = "Map";
-    } else if (lastAgentMessage.content.includes('<img')) {
-      agentResponse = "Image";
-    } else {
-      agentResponse = `${lastAgentMessage.content.replace(/&nbsp;/g, ' ').trim().substring(0, 25)}...`;
+    if (lastAgentMessage && lastAgentMessage.content) {
+      if (lastAgentMessage.content.includes('<iframe')) {
+        agentResponse = "Map";
+      } else if (lastAgentMessage.content.includes('<img')) {
+        agentResponse = "Image";
+      } else {
+        agentResponse = `${lastAgentMessage.content.replace(/&nbsp;/g, ' ').trim().substring(0, 25)}...`;
+      }
     }
   }
 
