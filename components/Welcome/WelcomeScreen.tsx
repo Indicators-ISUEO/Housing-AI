@@ -16,6 +16,7 @@ import { FaBuilding } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 import ContentEditable from "react-contenteditable";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import SpeechToText from "../Chat/SpeechToText";
 
 const HTML_REGULAR =
   /<(?!img|table|\/table|thead|\/thead|tbody|\/tbody|tr|\/tr|td|\/td|th|\/th|br|\/br).*?>/gi;
@@ -35,33 +36,44 @@ const WelcomeScreen = ({
     {
       icon: <HomeIcon className="size-5" />,
       title: "Rural Housing Readiness Assessment",
-      description: "What is the Rural Housing Readiness Assessment program and how can it help my community?",
-      question: "What is the Rural Housing Readiness Assessment program and how can it help my community?",
-      answer: "The Rural Housing Readiness Assessment program helps communities assess their readiness to address housing needs. It provides a framework for communities to evaluate their housing resources, identify gaps, and develop strategies to address housing challenges. The program is designed to help communities create a comprehensive housing plan that meets the needs of residents and supports economic development. By participating in the program, communities can access technical assistance, training, and resources to help them develop and implement their housing plans.",
-      prompt: "What is the Rural Housing Readiness Assessment program and how can it help my community?"
+      description:
+        "What is the Rural Housing Readiness Assessment program and how can it help my community?",
+      question:
+        "What is the Rural Housing Readiness Assessment program and how can it help my community?",
+      answer:
+        "The Rural Housing Readiness Assessment program helps communities assess their readiness to address housing needs. It provides a framework for communities to evaluate their housing resources, identify gaps, and develop strategies to address housing challenges. The program is designed to help communities create a comprehensive housing plan that meets the needs of residents and supports economic development. By participating in the program, communities can access technical assistance, training, and resources to help them develop and implement their housing plans.",
+      prompt:
+        "What is the Rural Housing Readiness Assessment program and how can it help my community?",
     },
     {
       icon: <FaBuilding className="size-5" />,
       title: "Population in Iowa's Counties",
-      description: "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
-      question: "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
-      answer: "The 2020 Census data shows that Iowa's population has grown by 4.7% since 2010. The data also shows that some counties in Iowa have experienced significant population growth, while others have seen a decline in population. For example, Dallas County has seen a 36% increase in population, while some rural counties have seen a decline in population. The data also shows that Iowa's population is becoming more diverse, with an increase in the number of Hispanic and Asian residents. Overall, the 2020 Census data provides valuable information about population trends in Iowa and can help communities plan for the future.",
-      prompt: "Can you tell me about population changes in Iowa counties according to the 2020 Census?"
+      description:
+        "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
+      question:
+        "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
+      answer:
+        "The 2020 Census data shows that Iowa's population has grown by 4.7% since 2010. The data also shows that some counties in Iowa have experienced significant population growth, while others have seen a decline in population. For example, Dallas County has seen a 36% increase in population, while some rural counties have seen a decline in population. The data also shows that Iowa's population is becoming more diverse, with an increase in the number of Hispanic and Asian residents. Overall, the 2020 Census data provides valuable information about population trends in Iowa and can help communities plan for the future.",
+      prompt:
+        "Can you tell me about population changes in Iowa counties according to the 2020 Census?",
     },
     {
       icon: <ChatBubbleIcon className="size-5" />,
       title: "Housing Needs Assessment",
-      description: "How do I conduct a housing needs assessment for my community?",
+      description:
+        "How do I conduct a housing needs assessment for my community?",
       question: "How do I conduct a housing needs assessment for my community?",
-      answer: "A housing needs assessment is a process that helps communities identify and prioritize their housing needs. It involves collecting data on the current housing stock, housing demand, and housing affordability in the community. The assessment can help communities understand the housing challenges they face and develop strategies to address them. To conduct a housing needs assessment, communities can use a variety of data sources, including census data, housing market studies, and surveys of residents. By conducting a housing needs assessment, communities can develop a better understanding of their housing needs and create a plan to address them.",
-      prompt: "How do I conduct a housing needs assessment for my community?"
+      answer:
+        "A housing needs assessment is a process that helps communities identify and prioritize their housing needs. It involves collecting data on the current housing stock, housing demand, and housing affordability in the community. The assessment can help communities understand the housing challenges they face and develop strategies to address them. To conduct a housing needs assessment, communities can use a variety of data sources, including census data, housing market studies, and surveys of residents. By conducting a housing needs assessment, communities can develop a better understanding of their housing needs and create a plan to address them.",
+      prompt: "How do I conduct a housing needs assessment for my community?",
     },
   ];
 
   const handleSendMessage = async (e: React.FormEvent) => {
     if (!isLoading) {
       e.preventDefault();
-      const input = textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+      const input =
+        textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
 
       if (input.length < 1) {
         return;
@@ -79,7 +91,10 @@ const WelcomeScreen = ({
     }
   };
 
-  const handleSuggestionButtonClick = async (e: React.MouseEvent, suggestion: any) => {
+  const handleSuggestionButtonClick = async (
+    e: React.MouseEvent,
+    suggestion: any
+  ) => {
     e.stopPropagation();
     if (!isLoading) {
       await onSuggestionClick(suggestion);
@@ -201,6 +216,7 @@ const WelcomeScreen = ({
                 <AiOutlineLoading3Quarters className="animate-spin size-4" />
               </Flex>
             )}
+            <SpeechToText onTranscript={setMessage} isLoading={isLoading} />
             <Tooltip content="Send Message">
               <IconButton
                 variant="soft"

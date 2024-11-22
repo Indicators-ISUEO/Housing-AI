@@ -29,6 +29,7 @@ import type {
 import Message from "./Message";
 import { useTheme } from "../Themes";
 import "./index.scss";
+import SpeechToText from "./SpeechToText";
 
 const HTML_REGULAR =
   /<(?!img|table|\/table|thead|\/thead|tbody|\/tbody|tr|\/tr|td|\/td|th|\/th|br|\/br).*?>/gi;
@@ -386,6 +387,7 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
                 <AiOutlineLoading3Quarters className="animate-spin size-4" />
               </Flex>
             )}
+            <SpeechToText onTranscript={setMessage} isLoading={isLoading} />
             <Tooltip content="Send Message">
               <IconButton
                 variant="soft"
