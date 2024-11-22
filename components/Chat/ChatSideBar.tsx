@@ -3,14 +3,13 @@
 import React, { useContext, useState } from 'react';
 import { Box, Flex, IconButton, ScrollArea, Text } from '@radix-ui/themes';
 import cs from 'classnames';
-import { AiOutlineCloseCircle, AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineCloseCircle, AiOutlineSearch, AiOutlineUnorderedList } from 'react-icons/ai';
 import { BiMessageDetail } from 'react-icons/bi';
 import { FiPlus } from 'react-icons/fi';
 import ChatContext from './chatContext';
 import type { ChatMessage } from './interface';
 
 import './index.scss';
-import { set } from 'react-hook-form';
 
 function generateChatSummary(messages: ChatMessage[]): { summary: string, agentResponse: string } {
   if (messages.length === 0) {
@@ -52,7 +51,8 @@ export const ChatSideBar = () => {
     onChangeChat,
     onCreateChat,
     DefaultPersonas,
-    setShowWelcome
+    setShowWelcome,
+    onToggleSidebar
   } = useContext(ChatContext);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,6 +94,16 @@ export const ChatSideBar = () => {
             onClick={handleNewChat}
           >
             <FiPlus className="size-4" />
+          </IconButton>
+          <IconButton
+            size="2"
+            className="cursor-pointer md:hidden"
+            variant="ghost"
+            color="gray"
+            radius="full"
+            onClick={onToggleSidebar}
+          >
+            <AiOutlineUnorderedList className="size-4" />
           </IconButton>
         </Flex>
         <ScrollArea className="flex-1" type="auto" scrollbars="vertical">

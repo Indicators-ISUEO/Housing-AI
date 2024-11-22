@@ -129,7 +129,6 @@ const WelcomeScreen = ({
             </Text>
           </Flex>
         </Card>
-
         <Text
           size="6"
           weight="medium"
@@ -137,37 +136,49 @@ const WelcomeScreen = ({
         >
           Suggested Topics
         </Text>
-
         <Flex gap="4" wrap="wrap" className="mb-8">
           {suggestions.map((suggestion, index) => (
             <Card
               key={index}
               className="flex-1 min-w-[250px] cursor-pointer transition-all duration-200 
-                     hover:shadow-md border border-[#9B945F] dark:border-[#C8102E]
-                     hover:transform hover:-translate-y-1 bg-white dark:bg-[#1a1a1a]
-                     dark:hover:bg-[#242424]"
+                hover:shadow-md border border-[#9B945F] dark:border-[#C8102E]
+                hover:transform hover:-translate-y-1 bg-white dark:bg-[#1a1a1a]
+                dark:hover:bg-[#242424] flex flex-col"
             >
-              <Flex direction="column" gap="3" className="p-4">
-                <Flex
-                  align="center"
-                  justify="center"
-                  className="w-10 h-10 rounded-full bg-[#CAC7A7] dark:bg-[#1a1a1a] dark:border dark:border-[#C8102E]"
-                >
-                  <div className="text-[#C8102E] dark:text-[#F1BE48]">
-                    {suggestion.icon}
+              <Flex
+                direction="column"
+                gap="3"
+                className="p-4 h-full flex flex-col justify-between"
+              >
+                <div>
+                  <Flex
+                    align="center"
+                    justify="center"
+                    className="w-10 h-10 rounded-full bg-[#CAC7A7] dark:bg-[#1a1a1a] dark:border dark:border-[#C8102E] mb-3"
+                  >
+                    <div className="text-[#C8102E] dark:text-[#F1BE48]">
+                      {suggestion.icon}
+                    </div>
+                  </Flex>
+                  <Text
+                    weight="bold"
+                    className="text-[#524727] dark:text-[#F1BE48] mb-4"
+                  >
+                    {suggestion.title}
+                  </Text>
+                  <div className="flex flex-col gap-2">
+                    {" "}
+                    {/* Added wrapper with gap */}
+                    <Text
+                      size="2"
+                      className="text-[#524727] dark:text-[#e5e5e5]"
+                    >
+                      {suggestion.description}
+                    </Text>
                   </div>
-                </Flex>
-                <Text
-                  weight="bold"
-                  className="text-[#524727] dark:text-[#F1BE48]"
-                >
-                  {suggestion.title}
-                </Text>
-                <Text size="2" className="text-[#524727] dark:text-[#e5e5e5]">
-                  {suggestion.description}
-                </Text>
+                </div>
                 <button
-                  className="ask-about-button"
+                  className="ask-about-button mt-6"
                   disabled={isLoading}
                   onClick={(e) => handleSuggestionButtonClick(e, suggestion)}
                 >

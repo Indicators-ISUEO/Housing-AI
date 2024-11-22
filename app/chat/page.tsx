@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { Suspense, useContext, useState, useEffect } from "react";
 import { Flex, Box, Text, ScrollArea } from "@radix-ui/themes";
@@ -20,6 +20,7 @@ const ChatProvider = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isChatReady, setIsChatReady] = useState(false);
+  const [toggleSidebar, setToggleSidebar] = useState(false);
 
   var isWelcome = false;
   if (provider.currentChatRef.current) {
@@ -80,6 +81,10 @@ const ChatProvider = () => {
     }
   };
 
+  const handleToggleSidebar = () => {
+    setToggleSidebar((prevState) => !prevState);
+  };
+
   return (
     <Box style={{ height: "calc(100vh - 56px)" }}>
       <ChatContext.Provider
@@ -88,6 +93,8 @@ const ChatProvider = () => {
           showWelcome,
           setShowWelcome,
           isLoading,
+          toggleSidebar,
+          onToggleSidebar: handleToggleSidebar,
         }}
       >
         <Flex direction="column" style={{ height: "100%" }}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, MutableRefObject } from 'react'
-import { Chat, ChatMessage, Persona, Suggestion } from './interface'
+import { Chat, ChatMessage, Persona } from './interface'
 
 const ChatContext = createContext<{
   debug?: boolean
