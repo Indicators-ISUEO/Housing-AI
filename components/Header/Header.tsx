@@ -5,7 +5,7 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Avatar, Flex, Heading, IconButton, Select } from "@radix-ui/themes";
 import NextLink from "next/link";
 import Image from "next/image";
-import { FaAdjust, FaGithub, FaMoon, FaRegSun } from "react-icons/fa";
+import { FaAdjust, FaGithub, FaMoon, FaRegSun, FaComments } from "react-icons/fa";
 import { Link } from "../Link";
 import { useTheme } from "../Themes";
 import { ChatContext } from "@/components";
@@ -80,7 +80,7 @@ export const Header = () => {
                   href="https://iastate.qualtrics.com/jfe/form/SV_0DkSXyKvW6odP1k"
                   className="flex items-center justify-center w-full h-full"
                 >
-                  <FaGithub className="w-4 h-4" />
+                  <FaComments className="w-4 h-4" />
                 </Link>
               }
             />

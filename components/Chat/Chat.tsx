@@ -11,13 +11,7 @@ import {
   useImperativeHandle,
   use,
 } from "react";
-import {
-  Flex,
-  Heading,
-  IconButton,
-  ScrollArea,
-  Tooltip,
-} from "@radix-ui/themes";
+import { Flex, IconButton, ScrollArea, Tooltip } from "@radix-ui/themes";
 import ContentEditable from "react-contenteditable";
 import toast from "react-hot-toast";
 import {
@@ -27,23 +21,26 @@ import {
 } from "react-icons/ai";
 import { FiSend } from "react-icons/fi";
 import ChatContext from "./chatContext";
-import type { Chat, ChatMessage } from "./interface";
+import type {
+  Chat as ChatType,
+  ChatMessage,
+  ChatGPInstance,
+} from "./interface";
 import Message from "./Message";
 import { useTheme } from "../Themes";
 import "./index.scss";
+import SpeechToText from "./SpeechToText";
 
 const HTML_REGULAR =
   /<(?!img|table|\/table|thead|\/thead|tbody|\/tbody|tr|\/tr|td|\/td|th|\/th|br|\/br).*?>/gi;
 
 export interface ChatProps {}
 
-export interface ChatGPInstance {
-  setConversation: (messages: ChatMessage[]) => void;
-  getConversation: () => ChatMessage[];
-  focus: () => void;
-}
-
-const postChatOrQuestion = async (chat: Chat, messages: any[], input: string) => {
+const postChatOrQuestion = async (
+  chat: ChatType,
+  messages: ChatMessage[],
+  input: string
+) => {
   var url = "/chat";
   const proxy_url = process.env.NEXT_PUBLIC_HOST;
   if (proxy_url) {
@@ -53,7 +50,7 @@ const postChatOrQuestion = async (chat: Chat, messages: any[], input: string) =>
   const data = {
     id: chat?.id,
     prompt: chat?.persona?.prompt,
-    messages: [...messages!],
+    messages: [...messages],
     input,
   };
 
@@ -67,41 +64,22 @@ const postChatOrQuestion = async (chat: Chat, messages: any[], input: string) =>
   });
 };
 
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return text.substring(0, maxLength) + "...";
-};
-
-const Chat = (props: ChatProps, ref: any) => {
+const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
   const { debug, currentChatRef, saveMessages, onToggleSidebar } =
     useContext(ChatContext);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const conversation = useRef<ChatMessage[]>([]);
-
   const [isLoading, setIsLoading] = useState(false);
-
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false); // State for lightbox
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightBoxURL, setIsLightBoxURL] = useState("");
-
   const conversationRef = useRef<ChatMessage[]>();
-
   const [message, setMessage] = useState("");
-
-  const [currentMessage, setCurrentMessage] = useState<string>("");
-
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-
+  const [currentMessage, setCurrentMessage] = useState("");
   const textAreaRef = useRef<HTMLElement>(null);
-
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
   const handleAgentResponse = useCallback((response: ChatMessage) => {
     conversation.current = [...conversation.current, response];
-
-    // Check if the response includes a source link
     if (response.sourceLink) {
       const sourceLinkContent = `Source: <a href="${response.sourceLink}" target="_blank">${response.sourceLink}</a>`;
       conversation.current.push({
@@ -109,162 +87,133 @@ const Chat = (props: ChatProps, ref: any) => {
         role: "assistant",
       });
     }
-
     forceUpdate();
   }, []);
 
-  const fetchSuggestions = useCallback(async (input: string) => {
-    const mockSuggestions = [
-      "Iowa State University Extensions and Outreach - CED :Can you Generate a map",
-      "Iowa State University Extensions and Outreach - CED :What is RHRA program?",
-      "Iowa State University Extensions and Outreach - CED :Provide some source",
-      "Hello",
-      "To make only the text on your screen larger, adjust the slider next to Text size.",
-      "To make only the text on your screen larger, adjust the slider next to Text size. To make everything larger, including images and apps, select Display, and then choose an option from the drop-down menu next to Scale.",
+  const processMessage = async (input: string) => {
+    if (input.length < 1) {
+      toast.error("Please type a message to continue.");
+      return;
+    }
+
+    const messageHistory = [...conversation.current];
+    conversation.current = [
+      ...conversation.current,
+      { content: input, role: "user" },
     ];
-    const filteredSuggestions = mockSuggestions.filter((s) =>
-      s.toLowerCase().includes(input.toLowerCase())
-    );
-    // setSuggestions(filteredSuggestions);
-    // setShowSuggestions(filteredSuggestions.length > 0);
-  }, []);
+    setMessage("");
+    setIsLoading(true);
 
-  const sendMessage = useCallback(
-    async (e: any) => {
-      if (!isLoading) {
-        e.preventDefault();
-        const input =
-          textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+    try {
+      const response = await postChatOrQuestion(
+        currentChatRef?.current!,
+        messageHistory,
+        input
+      );
 
-        if (input.length < 1) {
-          toast.error("Please type a message to continue.");
-          return;
+      if (response.ok) {
+        const data = response.body;
+        if (!data) {
+          throw new Error("No data");
         }
 
-        const message = [...conversation.current];
-        conversation.current = [
-          ...conversation.current,
-          { content: input, role: "user" },
-        ];
-        setMessage("");
-        setIsLoading(true);
-        try {
-          const response = await postChatOrQuestion(
-            currentChatRef?.current!,
-            message,
-            input
-          );
+        const reader = data.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+        let resultContent = "";
+        let sourceLink = "";
 
-          if (response.ok) {
-            const data = response.body;
-
-            if (!data) {
-              throw new Error("No data");
-            }
-
-            const reader = data.getReader();
-            const decoder = new TextDecoder("utf-8");
-            let done = false;
-            let resultContent = "";
-            let sourceLink = "";
-            while (!done) {
-              try {
-                const { value, done: readerDone } = await reader.read();
-                const char = decoder.decode(value);
-                if (char) {
-                  setCurrentMessage((state) => {
-                    if (debug) {
-                      console.log({ char });
+        while (!done) {
+          try {
+            const { value, done: readerDone } = await reader.read();
+            const char = decoder.decode(value);
+            if (char) {
+              setCurrentMessage((state) => {
+                let parts = char.split("||links ");
+                if (parts.length > 1) {
+                  resultContent += parts[0] + "\n";
+                  try {
+                    const links: string = parts[1].replaceAll("'", '"');
+                    const linksJSON: any = JSON.parse(links);
+                    if ("map_link" in linksJSON) {
+                      resultContent += `<div class="iframe-container"><iframe src="${linksJSON["map_link"]}" frameborder="0"></iframe>`;
+                      resultContent += `<button id="expand-map" class="expand-button">Expand</button></div>`;
+                    } else if ("sattelite_image" in linksJSON) {
+                      resultContent += ` <div style="display: flex; justify-content: space-between;">
+                        <div style="text-align: center; max-width: 48%;">
+                          <img id="expand-map" src="${linksJSON["sattelite_image"]}?${Date.now()}" alt="Sattelite image" style="width: 100%; height: auto;">
+                          <div style="margin-top: 8px; font-size: 14px; color: #555;">Sattelite image</div>
+                        </div>
+                        <div style="text-align: center; max-width: 48%;">
+                          <img id="expand-map" src="${linksJSON["sattelite_image_with_mask"]}?${Date.now()}" alt="Sattelite image with mask" style="width: 100%; height: auto;">
+                          <div style="margin-top: 8px; font-size: 14px; color: #555;">Sattelite image with housing mask</div>
+                        </div>
+                      </div>`;
                     }
-
-                    let parts = char.split("||links ");
-                    if (parts.length > 1) {
-                      resultContent += parts[0] + "\n";
-                      try {
-                        const links: string = parts[1].replaceAll("'", '"');
-                        const linksJSON: any = JSON.parse(links);
-                        if ("map_link" in linksJSON) {
-                          resultContent += `<div class="iframe-container"><iframe src="${linksJSON["map_link"]}" frameborder="0"></iframe>`;
-                          resultContent += `<button id="expand-map" class="expand-button">Expand</button></div>`;
-                        } else if ("sattelite_image" in linksJSON) {
-                          resultContent += ` <div style="display: flex; justify-content: space-between;">
-                                                <div style="text-align: center; max-width: 48%;">
-                                                    <img id="expand-map" src="${linksJSON["sattelite_image"]}?${Date.now()}" alt="Sattelite image" style="width: 100%; height: auto;">
-                                                    <div style="margin-top: 8px; font-size: 14px; color: #555;">Sattelite image</div>
-                                                </div>
-                                                <div style="text-align: center; max-width: 48%;">
-                                                    <img id="expand-map" src="${linksJSON["sattelite_image_with_mask"]}?${Date.now()}" alt="Sattelite image with mask" style="width: 100%; height: auto;">
-                                                    <div style="margin-top: 8px; font-size: 14px; color: #555;">Sattelite image with housing mask</div>
-                                                </div>
-                                            </div>`;
-                        }
-                        if ("src" in linksJSON) {
-                          sourceLink = linksJSON["src"];
-                        }
-                      } catch (error) {
-                        // silent exit, don't show the map
-                        console.log(error);
-                      }
-                    } else {
-                      resultContent = state + char;
+                    if ("src" in linksJSON) {
+                      sourceLink = linksJSON["src"];
                     }
-                    return resultContent;
-                  });
+                  } catch (error) {
+                    console.log(error);
+                  }
+                } else {
+                  resultContent = state + char;
                 }
-                done = readerDone;
-              } catch {
-                done = true;
-              }
+                return resultContent;
+              });
             }
-            // The delay of timeout can not be 0 as it will cause the message to not be rendered in racing condition
-
-            setTimeout(() => {
-              if (debug) {
-                console.log({ resultContent });
-              }
-              conversation.current = [
-                ...conversation.current,
-                { content: resultContent, role: "assistant", sourceLink },
-              ];
-
-              setCurrentMessage("");
-            }, 1);
-          } else {
-            const result = await response.json();
-            if (response.status === 401) {
-              conversation.current.pop();
-              location.href =
-                result.redirect +
-                `?callbackUrl=${encodeURIComponent(location.pathname + location.search)}`;
-            } else {
-              toast.error(result.error);
-            }
+            done = readerDone;
+          } catch {
+            done = true;
           }
+        }
 
-          setIsLoading(false);
-        } catch (error: any) {
-          console.error(error);
-          toast.error(error.message);
-          setIsLoading(false);
+        setTimeout(() => {
+          conversation.current = [
+            ...conversation.current,
+            { content: resultContent, role: "assistant", sourceLink },
+          ];
+          setCurrentMessage("");
+        }, 1);
+      } else {
+        const result = await response.json();
+        if (response.status === 401) {
+          conversation.current.pop();
+          location.href =
+            result.redirect +
+            `?callbackUrl=${encodeURIComponent(location.pathname + location.search)}`;
+        } else {
+          toast.error(result.error);
         }
       }
-    },
-    [currentChatRef, debug, isLoading]
-  );
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message);
+      conversation.current.pop();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleKeypress = useCallback(
-    (e: any) => {
-      if (e.keyCode == 13 && !e.shiftKey) {
-        sendMessage(e);
-        e.preventDefault();
-      }
-    },
-    [sendMessage]
-  );
+  const handleButtonClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const input =
+      textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+    await processMessage(input);
+  };
+
+  const handleKeyPress = useCallback(async (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
+      const input =
+        textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+      await processMessage(input);
+    }
+  }, []);
 
   const clearMessages = () => {
     conversation.current = [];
-    forceUpdate?.();
+    forceUpdate();
     setMessage("");
     setCurrentMessage("");
     setIsLoading(false);
@@ -272,9 +221,7 @@ const Chat = (props: ChatProps, ref: any) => {
 
   useEffect(() => {
     if (currentChatRef?.current?.messages) {
-      conversation.current = [
-        ...currentChatRef?.current?.messages,
-      ];
+      conversation.current = [...currentChatRef?.current?.messages];
       setCurrentMessage("");
     }
   }, []);
@@ -283,13 +230,13 @@ const Chat = (props: ChatProps, ref: any) => {
       textAreaRef.current.style.height = "50px";
       textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight + 2}px`;
     }
-  }, [message, textAreaRef]);
+  }, [message]);
 
   useEffect(() => {
     if (bottomOfChatRef.current) {
       bottomOfChatRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [conversation, currentMessage]);
+  }, [conversation.current, currentMessage]);
 
   useEffect(() => {
     conversationRef.current = conversation.current;
@@ -298,26 +245,25 @@ const Chat = (props: ChatProps, ref: any) => {
     }
   }, [currentChatRef, conversation.current, saveMessages]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      textAreaRef.current?.focus();
-    }
-  }, [isLoading]);
-
-  useImperativeHandle(ref, () => {
-    return {
+  useImperativeHandle<ChatGPInstance, ChatGPInstance>(
+    ref,
+    () => ({
       setConversation(messages: ChatMessage[]) {
         conversation.current = messages;
-        forceUpdate?.();
+        forceUpdate();
       },
       getConversation() {
         return conversationRef.current;
       },
-      focus: () => {
+      focus() {
         textAreaRef.current?.focus();
       },
-    };
-  });
+      async sendMessage(content: string) {
+        await processMessage(content);
+      },
+    }),
+    []
+  );
 
   const { theme } = useTheme();
 
@@ -336,34 +282,25 @@ const Chat = (props: ChatProps, ref: any) => {
     const handleExpandButtonClick = () => {
       setIsLightboxOpen(true);
     };
-    document.addEventListener("click", (event) => {
+
+    const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (target && target.id === "expand-map") {
+      if (target?.id === "expand-map") {
         handleExpandButtonClick();
-        let mapUrl: any = "";
+        let mapUrl = "";
         if (target instanceof HTMLImageElement) {
           mapUrl = target.src;
-        } else {
-          if (target?.previousElementSibling) {
-            mapUrl = target.previousElementSibling?.getAttribute("src");
-          }
+        } else if (target?.previousElementSibling) {
+          mapUrl = target.previousElementSibling.getAttribute("src") || "";
         }
-        // WARNING : iframe is previous to the expand button in layout
         setIsLightBoxURL(mapUrl);
       }
-    });
-
-    return () => {
-      document.removeEventListener("click", (event) => {
-        const target = event.target as HTMLElement;
-        if (target && target.id === "expand-map") {
-          handleExpandButtonClick();
-        }
-      });
     };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  // Lightbox component
   const Lightbox = ({
     isOpen,
     onClose,
@@ -374,7 +311,6 @@ const Chat = (props: ChatProps, ref: any) => {
     url: string;
   }) => {
     if (!isOpen) return null;
-
     return (
       <div className="lightbox">
         <div className="lightbox-content">
@@ -383,7 +319,7 @@ const Chat = (props: ChatProps, ref: any) => {
             frameBorder="0"
             width="100%"
             height="100%"
-            style={{ position: "relative", zIndex: 9999 }} // Ensure iframe is above other content
+            style={{ position: "relative", zIndex: 9999 }}
           />
           <button className="lightbox-close" onClick={onClose}>
             Close
@@ -395,19 +331,11 @@ const Chat = (props: ChatProps, ref: any) => {
 
   return (
     <Flex direction="column" height="100%" className="relative" gap="3">
-      <Flex
-        justify="between"
-        align="center"
-        py="1"
-        px="1"
-        style={{ backgroundColor: "var(--gray-a2)" }}
-      >
-      </Flex>
       <ScrollArea
-        className="flex-1 px-4"
+        className="flex-1 px-5"
         type="auto"
         scrollbars="vertical"
-        style={{ height: "100%" }}
+        style={{ height: "100%", paddingTop: "20px" }}
       >
         {conversation.current.map((item, index) => (
           <Message
@@ -443,17 +371,8 @@ const Chat = (props: ChatProps, ref: any) => {
               onChange={(e) => {
                 const value = e.target.value.replace(HTML_REGULAR, "");
                 setMessage(value);
-                if (value) {
-                  fetchSuggestions(value);
-                } else {
-                  setShowSuggestions(false);
-                }
               }}
-              onKeyDown={(e) => {
-                handleKeypress(e);
-              }}
-              onBlur={() => setShowSuggestions(false)} // Hide suggestions when input loses focus
-              onFocus={() => setShowSuggestions(suggestions.length > 0)} // Show suggestions when input gains focus
+              onKeyDown={handleKeyPress}
             />
           </div>
           <Flex gap="3" className="absolute right-0 pr-4 bottom-2 pt">
@@ -468,19 +387,20 @@ const Chat = (props: ChatProps, ref: any) => {
                 <AiOutlineLoading3Quarters className="animate-spin size-4" />
               </Flex>
             )}
-            <Tooltip content={"Send Message"}>
+            <SpeechToText onTranscript={setMessage} isLoading={isLoading} />
+            <Tooltip content="Send Message">
               <IconButton
                 variant="soft"
                 disabled={isLoading}
                 color="gray"
                 size="2"
                 className="rounded-xl cursor-pointer"
-                onClick={sendMessage}
+                onClick={handleButtonClick}
               >
                 <FiSend className="size-4" />
               </IconButton>
             </Tooltip>
-            <Tooltip content={"Clear History"}>
+            <Tooltip content="Clear History">
               <IconButton
                 variant="soft"
                 color="gray"
@@ -492,7 +412,7 @@ const Chat = (props: ChatProps, ref: any) => {
                 <AiOutlineClear className="size-4" />
               </IconButton>
             </Tooltip>
-            <Tooltip content={"Toggle Sidebar"}>
+            <Tooltip content="Toggle Sidebar">
               <IconButton
                 variant="soft"
                 color="gray"
@@ -514,6 +434,8 @@ const Chat = (props: ChatProps, ref: any) => {
       />
     </Flex>
   );
-};
+});
 
-export default forwardRef<ChatGPInstance, ChatProps>(Chat);
+Chat.displayName = "Chat";
+
+export default Chat;
