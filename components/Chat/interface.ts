@@ -4,6 +4,15 @@ export interface ChatMessage {
   sourceLink?: string;
 }
 
+export interface Suggestion {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  question: string;
+  answer: string;
+  prompt: string;
+}
+
 export interface Persona {
   id?: string;
   role: ChatRole;

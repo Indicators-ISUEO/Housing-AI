@@ -30,41 +30,46 @@ const ChatProvider = () => {
     setIsChatReady(true);
   }, []);
 
-  const handleSuggestionClick = async (prompt: string) => {
-    console.log("handleSuggestionClick called with prompt:", prompt);
+  const handleSuggestionClick = async (suggestion: any) => {
     if (isLoading) return;
     setIsLoading(true);
 
     try {
-      const userMessage: ChatMessage = {
-        role: "user",
-        content: prompt,
-      };
-      console.log("Created user message:", userMessage);
-
       if (provider.currentChatRef.current) {
-        console.log("Current chat ref exists");
         provider.currentChatRef.current.isWelcome = false;
 
-        if (provider.currentChatRef.current.persona) {
-          console.log("Setting persona prompt");
-          provider.currentChatRef.current.persona.prompt = prompt;
-        }
+        if (suggestion.question && suggestion.answer) {
+          if (!provider.currentChatRef.current.messages) {
+            provider.currentChatRef.current.messages = [];
+          }
 
-        setShowWelcome(false);
+          provider.currentChatRef.current.messages = [
+            ...provider.currentChatRef.current.messages,
+            { content: suggestion.question, role: "user" },
+            { content: suggestion.answer, role: "assistant" },
+          ];
 
-        await new Promise((resolve) => setTimeout(resolve, 0));
+          if (provider.currentChatRef.current.persona) {
+            provider.currentChatRef.current.persona.prompt = suggestion.prompt;
+          }
 
-        if (provider.chatRef.current) {
-          console.log("Chat ref exists, setting conversation");
-
-          provider.chatRef.current.setConversation([]);
-
-          console.log("Calling sendMessage");
-          await provider.chatRef.current.sendMessage(prompt);
+          provider.saveMessages(provider.currentChatRef.current.messages);
+          setShowWelcome(false);
         } else {
-          console.log("Chat ref is still null after mounting");
-          toast.error("Failed to initialize chat. Please try again.");
+          const promptToUse = suggestion.prompt || suggestion;
+
+          if (provider.currentChatRef.current.persona) {
+            provider.currentChatRef.current.persona.prompt = promptToUse;
+          }
+
+          setShowWelcome(false);
+
+          if (provider.chatRef.current) {
+            provider.chatRef.current.setConversation([]);
+            await provider.chatRef.current.sendMessage(promptToUse);
+          } else {
+            toast.error("Failed to initialize chat. Please try again.");
+          }
         }
       }
     } catch (error) {
@@ -98,7 +103,7 @@ const ChatProvider = () => {
                 ) : (
                   <Chat
                     ref={provider.chatRef}
-                    key={isWelcome ? "welcome" : "chat"} // Force new instance when switching
+                    key={isWelcome ? "welcome" : "chat"}
                   />
                 )}
                 <PersonaPanel />

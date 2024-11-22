@@ -11,12 +11,7 @@ import {
   useImperativeHandle,
   use,
 } from "react";
-import {
-  Flex,
-  IconButton,
-  ScrollArea,
-  Tooltip,
-} from "@radix-ui/themes";
+import { Flex, IconButton, ScrollArea, Tooltip } from "@radix-ui/themes";
 import ContentEditable from "react-contenteditable";
 import toast from "react-hot-toast";
 import {
@@ -26,7 +21,11 @@ import {
 } from "react-icons/ai";
 import { FiSend } from "react-icons/fi";
 import ChatContext from "./chatContext";
-import type { Chat as ChatType, ChatMessage, ChatGPInstance } from './interface';
+import type {
+  Chat as ChatType,
+  ChatMessage,
+  ChatGPInstance,
+} from "./interface";
 import Message from "./Message";
 import { useTheme } from "../Themes";
 import "./index.scss";
@@ -36,7 +35,11 @@ const HTML_REGULAR =
 
 export interface ChatProps {}
 
-const postChatOrQuestion = async (chat: ChatType, messages: ChatMessage[], input: string) => {
+const postChatOrQuestion = async (
+  chat: ChatType,
+  messages: ChatMessage[],
+  input: string
+) => {
   var url = "/chat";
   const proxy_url = process.env.NEXT_PUBLIC_HOST;
   if (proxy_url) {
@@ -61,7 +64,8 @@ const postChatOrQuestion = async (chat: ChatType, messages: ChatMessage[], input
 };
 
 const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
-  const { debug, currentChatRef, saveMessages, onToggleSidebar } = useContext(ChatContext);
+  const { debug, currentChatRef, saveMessages, onToggleSidebar } =
+    useContext(ChatContext);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const conversation = useRef<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -192,20 +196,19 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
 
   const handleButtonClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    const input = textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+    const input =
+      textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
     await processMessage(input);
   };
 
-  const handleKeyPress = useCallback(
-    async (e: React.KeyboardEvent) => {
-      if (e.keyCode === 13 && !e.shiftKey) {
-        e.preventDefault();
-        const input = textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
-        await processMessage(input);
-      }
-    },
-    []
-  );
+  const handleKeyPress = useCallback(async (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
+      const input =
+        textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+      await processMessage(input);
+    }
+  }, []);
 
   const clearMessages = () => {
     conversation.current = [];
@@ -217,9 +220,7 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
 
   useEffect(() => {
     if (currentChatRef?.current?.messages) {
-      conversation.current = [
-        ...currentChatRef?.current?.messages,
-      ];
+      conversation.current = [...currentChatRef?.current?.messages];
       setCurrentMessage("");
     }
   }, []);
@@ -280,7 +281,7 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
     const handleExpandButtonClick = () => {
       setIsLightboxOpen(true);
     };
-    
+
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (target?.id === "expand-map") {
@@ -299,7 +300,15 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  const Lightbox = ({ isOpen, onClose, url }: { isOpen: boolean; onClose: () => void; url: string }) => {
+  const Lightbox = ({
+    isOpen,
+    onClose,
+    url,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
+    url: string;
+  }) => {
     if (!isOpen) return null;
     return (
       <div className="lightbox">
@@ -322,10 +331,10 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
   return (
     <Flex direction="column" height="100%" className="relative" gap="3">
       <ScrollArea
-        className="flex-1 px-4"
+        className="flex-1 px-5"
         type="auto"
         scrollbars="vertical"
-        style={{ height: "100%" }}
+        style={{ height: "100%", paddingTop: "20px" }}
       >
         {conversation.current.map((item, index) => (
           <Message
@@ -425,6 +434,6 @@ const Chat = forwardRef<ChatGPInstance, ChatProps>((props, ref) => {
   );
 });
 
-Chat.displayName = 'Chat';
+Chat.displayName = "Chat";
 
 export default Chat;
