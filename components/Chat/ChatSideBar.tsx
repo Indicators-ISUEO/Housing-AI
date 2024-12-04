@@ -3,7 +3,7 @@
 import React, { useContext, useState } from 'react';
 import { Box, Flex, IconButton, ScrollArea, Text } from '@radix-ui/themes';
 import cs from 'classnames';
-import { AiOutlineCloseCircle, AiOutlineSearch, AiOutlineUnorderedList } from 'react-icons/ai';
+import { AiOutlineCloseCircle, AiOutlineSearch } from 'react-icons/ai';
 import { BiMessageDetail } from 'react-icons/bi';
 import { FiPlus } from 'react-icons/fi';
 import ChatContext from './chatContext';
@@ -58,8 +58,26 @@ export const ChatSideBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleNewChat = () => {
-    onCreateChat?.(DefaultPersonas[0])
-    setShowWelcome(true)
+    onCreateChat?.(DefaultPersonas[0]);
+    setShowWelcome(true);
+    if (window.innerWidth < 768) {
+      onToggleSidebar?.();
+    }
+  };
+
+  const handleChatSelect = (chat: any) => {
+    onChangeChat?.(chat);
+    if (window.innerWidth < 768) {
+      onToggleSidebar?.();
+    }
+  };
+
+  const handleDeleteChat = (e: React.MouseEvent, chat: any) => {
+    e.stopPropagation();
+    onDeleteChat?.(chat);
+    if (chatList.length <= 1) {
+      setShowWelcome(true);
+    }
   };
 
   const filteredChatList = chatList.filter(chat =>
@@ -68,93 +86,97 @@ export const ChatSideBar = () => {
   );
 
   return (
-    <Flex direction="column" className={cs('chart-side-bar', { show: toggleSidebar })}>
-      <Flex className="p-2 h-full overflow-hidden w-64" direction="column" gap="3">
-        <Flex align="center" gap="2" className="p-2" style={{ alignItems: 'center' }}>
-          <Box
-            width="auto"
-            className="bg-token-surface-primary active:scale-95 cursor-pointer"
-            style={{ display: 'flex', alignItems: 'center', padding: '8px', borderRadius: '8px', flexGrow: 1 }}
-          >
-            <AiOutlineSearch className="size-4" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ marginLeft: '8px', background: 'transparent', border: 'none', outline: 'none', color: 'inherit', width: '100%' }}
-            />
-          </Box>
-          <IconButton
-            size="2"
-            className="cursor-pointer"
-            variant="ghost"
-            color="gray"
-            radius="full"
-            onClick={handleNewChat}
-          >
-            <FiPlus className="size-4" />
-          </IconButton>
-          <IconButton
-            size="2"
-            className="cursor-pointer md:hidden"
-            variant="ghost"
-            color="gray"
-            radius="full"
-            onClick={onToggleSidebar}
-          >
-            <AiOutlineUnorderedList className="size-4" />
-          </IconButton>
-        </Flex>
-        <ScrollArea className="flex-1" type="auto" scrollbars="vertical">
-          <Flex direction="column" gap="3">
-            {filteredChatList.map((chat) => {
-              const { summary, agentResponse } = generateChatSummary(chat.messages || []);
-              return (
-                <Box
-                  key={chat.id}
-                  width="auto"
-                  className={cs('bg-token-surface active:scale-95 truncate cursor-pointer', {
-                    active: currentChatRef?.current?.id === chat.id
-                  })}
-                  onClick={() => onChangeChat?.(chat)}
-                  style={{ padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                >
-                  <Flex direction="row" align="center" gap="2" style={{ flexGrow: 1 }}>
-                    <BiMessageDetail className="size-4" />
-                    <Flex direction="column" width="auto" style={{ flexGrow: 1 }}>
-                      <Text as="p" className="truncate text-xs">
-                        {summary}
-                      </Text>
-                      <Text as="p" className="truncate text-xs">
-                        {agentResponse}
-                      </Text>
-                    </Flex>
-                  </Flex>
-                  <IconButton
-                    size="2"
-                    className="cursor-pointer"
-                    variant="ghost"
-                    color="gray"
-                    radius="full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteChat?.(chat);
-                      if (chatList.length <= 1) {
-                        setShowWelcome(true);
-                      }
-                    }}
-                  >
-                    <AiOutlineCloseCircle className="size-4" />
-                  </IconButton>
-                </Box>
-              );
-            })}
+    <>
+      {/* Overlay */}
+      {toggleSidebar && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => onToggleSidebar?.()}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cs(
+          'fixed md:relative top-[56px] md:top-0 left-0 h-[calc(100vh-56px)] md:h-full',
+          'w-64 bg-background border-r border-isu-sage',
+          'transition-transform duration-300 ease-in-out z-50',
+          'md:translate-x-0',
+          toggleSidebar ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <Flex className="p-2 h-full overflow-hidden" direction="column" gap="3">
+          <Flex align="center" gap="2" className="p-2">
+            <Box
+              width="auto"
+              className="bg-token-surface-primary active:scale-95 cursor-pointer"
+              style={{ display: 'flex', alignItems: 'center', padding: '8px', borderRadius: '8px', flexGrow: 1 }}
+            >
+              <AiOutlineSearch className="size-4" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ marginLeft: '8px', background: 'transparent', border: 'none', outline: 'none', color: 'inherit', width: '100%' }}
+              />
+            </Box>
+            <IconButton
+              size="2"
+              className="cursor-pointer"
+              variant="ghost"
+              color="gray"
+              radius="full"
+              onClick={handleNewChat}
+            >
+              <FiPlus className="size-4" />
+            </IconButton>
           </Flex>
-        </ScrollArea>
-      </Flex>
-    </Flex>
+          
+          <ScrollArea className="flex-1" type="auto" scrollbars="vertical">
+            <Flex direction="column" gap="3">
+              {filteredChatList.map((chat) => {
+                const { summary, agentResponse } = generateChatSummary(chat.messages || []);
+                return (
+                  <Box
+                    key={chat.id}
+                    width="auto"
+                    className={cs('bg-token-surface active:scale-95 truncate cursor-pointer', {
+                      active: currentChatRef?.current?.id === chat.id
+                    })}
+                    onClick={() => handleChatSelect(chat)}
+                    style={{ padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  >
+                    <Flex direction="row" align="center" gap="2" style={{ flexGrow: 1 }}>
+                      <BiMessageDetail className="size-4" />
+                      <Flex direction="column" width="auto" style={{ flexGrow: 1 }}>
+                        <Text as="p" className="truncate text-xs">
+                          {summary}
+                        </Text>
+                        <Text as="p" className="truncate text-xs">
+                          {agentResponse}
+                        </Text>
+                      </Flex>
+                    </Flex>
+                    <IconButton
+                      size="2"
+                      className="cursor-pointer"
+                      variant="ghost"
+                      color="gray"
+                      radius="full"
+                      onClick={(e) => handleDeleteChat(e, chat)}
+                    >
+                      <AiOutlineCloseCircle className="size-4" />
+                    </IconButton>
+                  </Box>
+                );
+              })}
+            </Flex>
+          </ScrollArea>
+        </Flex>
+      </aside>
+    </>
   );
-}
+};
 
 export default ChatSideBar;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { Avatar, Flex, IconButton, Tooltip } from "@radix-ui/themes";
 import { HiUser } from "react-icons/hi";
 import { Markdown } from "@/components";
@@ -19,7 +19,6 @@ const Message = (props: MessageProps) => {
   const isUser = role === "user";
   const copy = useCopyToClipboard();
   const [tooltipOpen, setTooltipOpen] = useState<boolean>(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const onCopy = useCallback(() => {
     copy(content, (isSuccess) => {
@@ -30,18 +29,21 @@ const Message = (props: MessageProps) => {
   }, [content, copy]);
 
   return (
-    <Flex
-      gap="4"
-      className="mb-5 message-container"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Avatar
-        fallback={<HiUser className="size-4" />}
-        color={isUser ? undefined : "pink"}
-        size="2"
-        radius="full"
-      />
+    <Flex gap="4" className="mb-5 message-container">
+      <div className="flex flex-col gap-2">
+        <Avatar
+          fallback={<HiUser className="size-4" />}
+          color={isUser ? undefined : "pink"}
+          size="2"
+          radius="full"
+        />
+        {!isUser && (
+          <TextToSpeech
+            text={content}
+            className="text-to-speech-button"
+          />
+        )}
+      </div>
       <div className="flex-1 pt-1 break-all">
         {isUser ? (
           <div
@@ -59,14 +61,6 @@ const Message = (props: MessageProps) => {
               <div className="flex-grow">
                 <Markdown>{content}</Markdown>
               </div>
-              {isHovered && (
-                <div className="flex-shrink-0 ml-4">
-                  <TextToSpeech
-                    text={content}
-                    className="text-to-speech-button"
-                  />
-                </div>
-              )}
             </div>
             {sourceLink && (
               <div
