@@ -190,7 +190,7 @@ const ChatWidget = ({ onSendMessage, messages, isLoading, currentMessage }: Chat
           className="object-cover"
         />
       </div>
-      <span className="font-semibold whitespace-nowrap">Extension AI Assistant</span>
+      <span className="font-semibold whitespace-nowrap">Extension AI</span>
       <FaComments className="text-xl ml-2" />
     </button>
   );

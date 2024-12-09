@@ -5,8 +5,7 @@ import axios from 'axios'
 import { useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { v4 as uuid } from 'uuid'
-import { ChatGPInstance } from './Chat'
-import { Chat, ChatMessage, Persona } from './interface'
+import { Chat, ChatMessage, Persona, ChatGPInstance } from './interface'
 
 export const DefaultPersonas: Persona[] = [
   {

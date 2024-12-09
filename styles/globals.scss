@@ -460,3 +460,41 @@ html, body {
 .footer {
   height: 100px; 
 }
+
+// Add these tooltip styles to your globals.scss
+.rt-TooltipContent {
+  animation-duration: 0.2s;
+  animation-timing-function: ease-out;
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+
+  &[data-state='delayed-open'] {
+    animation-name: slideDownAndFade;
+  }
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Ensure tooltips appear above other elements
+.rt-TooltipTrigger {
+  z-index: 50;
+}
+
+// Add proper positioning and z-index for the tooltip content
+.rt-TooltipContent {
+  z-index: 60;
+  background-color: #333;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

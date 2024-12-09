@@ -39,7 +39,7 @@ const ChatContext = createContext<{
   personas: [],
   showWelcome: true,
   setShowWelcome: () => {},
-  isLoading: false
+  isLoading: false,
 })
 
 export default ChatContext

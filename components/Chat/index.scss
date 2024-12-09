@@ -22,23 +22,68 @@
 }
 
 .chart-side-bar {
-  @apply overflow-hidden w-64 z-10;
+  @apply overflow-hidden z-10;
   background-color: var(--color-background);
-  transition: 0.5s;
+  transition: all 0.3s ease-in-out;
   border-right: 1px solid var(--isu-sage);
 
-  @apply max-md:absolute max-md:top-0 max-md:bottom-0 max-md:border-none max-md:w-0;
+  // Desktop styles
+  @media (min-width: 769px) {
+    width: 16rem;
+    position: relative;
+  }
 
-  .rt-ScrollAreaViewport>div {
+  // Mobile styles
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 56px; // Adjust this value based on your header height
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background-color: white; // or your desired background color
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+
+    &.show {
+      width: 16rem;
+    }
+
+    // When sidebar is hidden, push it off-screen
+    &:not(.show) {
+      transform: translateX(-100%);
+    }
+  }
+
+  .rt-ScrollAreaViewport > div {
     display: block;
   }
 
-  >div {
-    border-right: 1px solid var(--isu-sage);
+  > div {
+    width: 16rem; // Keep inner content width fixed
+    height: 100%;
+    overflow-x: hidden;
   }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out;
 
   &.show {
-    @apply w-64;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (min-width: 769px) {
+    display: none;
   }
 }
 
@@ -280,5 +325,58 @@
 
   .autocomplete-suggestion {
     padding: 10px;
+  }
+
+}
+.speech-button {
+  transition: all 0.2s;
+  
+  &.recording {
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.message-container {
+  position: relative;
+  transition: background-color 0.2s;
+
+  .text-to-speech-button {
+    transition: opacity 0.2s;
+  }
+  
+  &:hover {
+    .text-to-speech-button {
+      opacity: 1;
+    }
+  }
+}
+
+.text-to-speech {
+  &.speaking {
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
   }
 }
